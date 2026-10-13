@@ -1,0 +1,197 @@
+.page {
+  min-height: 100vh;
+  background: #faf9ff;
+  color: #141638;
+  font-family: var(--font);
+}
+
+.shell {
+  width: var(--hr-layout-width, 85%);
+  max-width: var(--hr-layout-width, 85%);
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+.card {
+  margin-top: 40px;
+  background: #ffffff;
+  border: 1px solid #e5e5ef;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+.companyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(112, 71, 255, 0.08);
+  border: 1px solid rgba(112, 71, 255, 0.2);
+  color: #7047ff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  font-weight: 800;
+  color: #141638;
+  margin: 0 0 10px 0;
+}
+
+.metaRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f5f3fb;
+  color: #5f6686;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.jdBox {
+  background: #faf9ff;
+  border: 1px solid #e5e5ef;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.jdBox h3 {
+  font-size: var(--text-h3, 1.25rem);
+  font-weight: 700;
+  color: #141638;
+  margin: 0 0 10px 0;
+}
+
+.jdBox p {
+  color: #363b5c;
+  font-size: var(--text-h4, 1.05rem);
+  font-weight: 400;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.formGroupFull {
+  grid-column: 1 / -1;
+  margin-bottom: 18px;
+}
+
+.label {
+  display: block;
+  font-size: var(--text-h4, 1.05rem);
+  font-weight: 400;
+  color: #141638;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e5ef;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: #141638;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:hover {
+  border-color: #d6d7e5;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #7047ff;
+  box-shadow: 0 0 0 1px #7047ff, 0 0 0 3px rgba(112, 71, 255, 0.15);
+}
+
+.fileInputBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1.5px dashed #d6d7e5;
+  border-radius: 8px;
+  padding: 28px 16px;
+  text-align: center;
+  background: #faf9ff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fileInputBox:hover {
+  border-color: #7047ff;
+  background: #f8f6ff;
+}
+
+.submitBtn {
+  width: 100%;
+  background: #7047ff;
+  color: #ffffff;
+  border: none;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+  margin-top: 12px;
+}
+
+.submitBtn:hover {
+  background: #6036eb;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding-bottom: 40px;
+  }
+  .card {
+    margin-top: 20px;
+    padding: 24px 16px;
+    border-radius: 18px;
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}

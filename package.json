@@ -1,0 +1,46 @@
+{
+  "name": "hirerighttt",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend/node"
+  ],
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "node backend/node/index.mjs",
+    "dev:python": "cd backend/python && python run.py",
+    "dev:all": "node scripts/dev-all.mjs",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "preview": "npm --prefix frontend run preview",
+    "start": "node backend/node/index.mjs",
+    "server": "node backend/node/index.mjs",
+    "server:py": "cd backend/python && python run.py",
+    "test:e2e": "playwright test",
+    "prod:supabase": "docker compose -f docker-compose.supabase.prod.yml up -d --build",
+    "prod:self-hosted": "docker compose -f docker-compose.prod.yml --profile self-hosted-db up -d --build"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1",
+    "framer-motion": "^12.43.0",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^6.2.108",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "oxlint": "^1.71.0",
+    "pdf-lib": "^1.17.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
+  }
+}

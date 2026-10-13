@@ -1,0 +1,643 @@
+/**
+ * HireRight Interview Agent Client
+ * Synchronized with ExperientialLabs AI (gpt-6-luna).
+ * Generates interactive, resume-tailored questions and rubric scoring.
+ */
+import type { Question } from './interviewEngine'
+import type { AnswerAnalysis, IntegrityLogEvent, InterviewResult, SavedProfile } from './store'
+import { apiFetch } from './api'
+import { ensureApiSession } from './apiSession'
+import { clientLlmAllowed } from './clientLlm'
+import { candidateFullName } from './store'
+import { generateLocalAdaptiveQuestion } from './adaptiveInterview'
+import {
+  buildResumeInterviewQuestions,
+  runLocalInterviewScore,
+} from './localInterview'
+
+function enrichProfileForAgent(profile: SavedProfile | null): SavedProfile | null {
+  if (!profile) return null
+  const display = candidateFullName()
+  const resolved =
+    profile.fullName?.trim() ||
+    profile.name?.trim() ||
+    (display && display !== 'Candidate' ? display : '')
+  if (!resolved) return profile
+  return {
+    ...profile,
+    fullName: resolved,
+    name: resolved,
+  }
+}
+
+function candidateFirstName(profile: SavedProfile | null): string {
+  const full =
+    profile?.fullName?.trim() ||
+    profile?.name?.trim() ||
+    candidateFullName()
+  if (!full || full === 'Candidate') return 'there'
+  return full.split(/\s+/)[0] || 'there'
+}
+
+const EXPERIENTIALLABS_API_KEY = clientLlmAllowed()
+  ? import.meta.env.VITE_EXPERIENTIALLABS_API_KEY || ''
+  : ''
+const EXPERIENTIALLABS_BASE_URL = (
+  typeof window !== 'undefined' && clientLlmAllowed()
+    ? '/ai-proxy'
+    : import.meta.env.VITE_EXPERIENTIALLABS_BASE_URL || 'https://api.experientiallabs.ai/v1'
+).replace(/\/$/, '')
+const PRIMARY_MODEL =
+  import.meta.env.VITE_PRIMARY_MODEL || 'gemini-2.5-flash'
+const FALLBACK_MODEL =
+  import.meta.env.VITE_FALLBACK_MODEL || 'gpt-6-luna'
+const EXPERIENTIALLABS_MODEL = PRIMARY_MODEL
+
+export type InterviewStartResponse = {
+  sessionId: string | null
+  agent: string
+  llm: boolean
+  total: number
+  questions: Question[]
+  question: Question
+  offline?: boolean
+  adaptive?: boolean
+}
+
+export type IntegritySnapshot = {
+  faceViolations: number
+  singlePersonOk: boolean
+  maxFacesSeen: number
+  banned?: boolean
+  banReason?: string
+  sideLookWarnings?: number
+  tooFarWarnings?: number
+  logs?: IntegrityLogEvent[]
+}
+
+/** Check whether Gemini 2.5 Flash / Luna is live and operational */
+export async function checkLlmStatus(): Promise<{
+  active: boolean
+  model: string
+  provider: string
+  message: string
+}> {
+  // 1. First check if backend server is reporting status
+  try {
+    const res = await fetch('/api/llm-status')
+    if (res.ok) {
+      const data = await res.json()
+      if (data.active) return data
+    }
+  } catch {
+    // backend offline, check direct API
+  }
+
+  // 2. Direct ping to AI gateway (development only)
+  if (!clientLlmAllowed()) {
+    return {
+      active: false,
+      model: 'server-api',
+      provider: 'HireRight API',
+      message: 'Use the Node API for LLM in production.',
+    }
+  }
+
+  const models = [PRIMARY_MODEL, FALLBACK_MODEL]
+  for (const m of models) {
+    try {
+      const directRes = await fetch(`${EXPERIENTIALLABS_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${EXPERIENTIALLABS_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: m,
+          messages: [{ role: 'user', content: 'Ping' }],
+          max_tokens: 5,
+        }),
+      })
+
+      if (directRes.ok) {
+        return {
+          active: true,
+          model: m,
+          provider: m.includes('gemini') ? 'Google Gemini' : 'OpenAI Luna',
+          message: `${m.includes('gemini') ? 'Google Gemini 2.5 Flash' : 'OpenAI Luna (gpt-6-luna)'} is LIVE and calibrated with candidate profile.`,
+        }
+      }
+    } catch {
+      // try next model
+    }
+  }
+
+  return {
+    active: false,
+    model: 'local-agent',
+    provider: 'Local Resume Agent',
+    message: 'Running in local resume-matching mode.',
+  }
+}
+
+/**
+ * Generate resume-accurate questions directly using Gemini 2.5 Flash first,
+ * falling back smoothly to OpenAI Luna (gpt-6-luna).
+ * Calibrated specifically for candidate's exact role and years of experience.
+ */
+async function generateLunaQuestionsDirect(
+  role: string,
+  level: string,
+  profile: SavedProfile | null,
+  jobDescription?: string,
+): Promise<Question[] | null> {
+  if (!EXPERIENTIALLABS_API_KEY) return null
+
+  const candidateName = candidateFirstName(profile)
+  const candidateFull =
+    profile?.fullName?.trim() ||
+    profile?.name?.trim() ||
+    candidateFullName() ||
+    'Candidate'
+  const skills = Array.isArray(profile?.skills) ? profile.skills.join(', ') : 'Not specified'
+  const experiences = (profile?.workExperiences || [])
+    .map((w) => `${w.jobTitle || 'Role'} at ${w.company || 'Company'}: ${w.responsibilities || (w as any).description || ''}`)
+    .join('\n')
+  const resumeText = (profile?.resumeText || '').slice(0, 3500)
+
+  const system = `You are Ava, HireRight's friendly AI Technical Interviewer powered by Gemini (with Luna fallback).
+You conduct an interactive, spoken video interview.
+
+ROLE & EXPERIENCE LEVEL CALIBRATION:
+- Carefully analyze the candidate's exact target role ("${role}") and years of experience ("${level}"):
+  * Freshers / Junior (0–2 Years): Ask approachable, encouraging questions about practical fundamentals, their college or internship projects, how they learn, and everyday tools. Keep questions accessible and confidence-building.
+  * Mid-Level (2–5 Years): Ask practical questions about features they built, real-world bug troubleshooting, component/service design, and day-to-day tooling.
+  * Senior / Lead (5+ Years): Ask about high-level architecture decisions, system trade-offs, scaling, and mentoring—while keeping questions conversational and straightforward.
+
+SIMPLICITY & USER-FRIENDLINESS (MANDATORY):
+- Keep all questions SIMPLE, USER-FRIENDLY, and EASY TO UNDERSTAND.
+- Use natural, friendly spoken conversational English (like chatting with a supportive colleague).
+- Avoid overly long, convoluted, academic, or confusing multi-part questions.
+- Ask about ONE clear concept or story at a time so the candidate understands immediately and can answer comfortably.
+
+Guidelines:
+1. Explicitly cite real details from their resume (employers, projects, tools, skills).
+2. Address the candidate by first name "${candidateName}" in the opening question.
+3. If a target Job Description is provided, relate their resume experience to the job's core challenges.
+
+Structure the 5 questions:
+- Q1 (Communication): Warm intro welcoming ${candidateName}, referencing their focus area and strongest skills.
+- Q2 (Technical Depth): A simple, practical question about a specific tool or language on their resume.
+- Q3 (Resume Project): A friendly walkthrough of a project or feature they built.
+- Q4 (Problem Solving): A straightforward challenge or bug they fixed.
+- Q5 (Experience & Delivery): Team collaboration or delivering an impactful result.
+
+Return ONLY valid JSON matching this schema:
+{
+  "questions": [
+    {
+      "text": "Simple spoken question text...",
+      "category": "Communication" | "Technical" | "Problem Solving" | "Experience",
+      "keywords": ["keyword1", "keyword2", "keyword3"],
+      "hint": "Actionable guidance hint for candidate",
+      "resumeAnchor": "Specific project or tool referenced from resume"
+    }
+  ]
+}`
+
+  const user = JSON.stringify({
+    candidateFirstName: candidateName,
+    candidateFullName: candidateFull,
+    targetRole: role,
+    targetLevel: level,
+    jobDescription: jobDescription || 'Not specified',
+    resumeSnippet: resumeText || 'Use candidate skills and profile',
+    skillsList: skills,
+    workHistory: experiences,
+    whoAreYou: profile?.whoAreYou || '',
+    keyStrengths: profile?.keyStrengths || '',
+  })
+
+  const models = [PRIMARY_MODEL, FALLBACK_MODEL]
+  for (const m of models) {
+    try {
+      const res = await fetch(`${EXPERIENTIALLABS_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${EXPERIENTIALLABS_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: m,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: user },
+          ],
+          temperature: 0.3,
+        }),
+      })
+
+      if (!res.ok) {
+        console.warn(`[Client AI Cascade] Model "${m}" status ${res.status}. Falling back...`)
+        continue
+      }
+
+      const data = await res.json()
+      const content = data.choices?.[0]?.message?.content || ''
+      const match = content.match(/\{[\s\S]*\}/)
+      if (!match) continue
+
+      const parsed = JSON.parse(match[0])
+      if (!Array.isArray(parsed.questions) || parsed.questions.length < 3) continue
+
+      const validCategories = ['Communication', 'Technical', 'Problem Solving', 'Experience'] as const
+
+      return parsed.questions.slice(0, 5).map((q: any) => {
+        const category = validCategories.includes(q.category) ? q.category : 'Technical'
+        return {
+          text: String(q.text || '').trim(),
+          category,
+          keywords: Array.isArray(q.keywords) ? q.keywords.map(String) : [category.toLowerCase()],
+          hint: String(q.hint || 'Structure your answer with a concrete example and measurable outcome.').trim(),
+          resumeAnchor: q.resumeAnchor ? String(q.resumeAnchor).trim() : undefined,
+        }
+      })
+    } catch (err: any) {
+      console.warn(`[Client AI Cascade] Model "${m}" error: ${err.message}. Falling back...`)
+    }
+  }
+
+  return null
+}
+
+/**
+ * Start an interview session with Ava.
+ * Tries ExperientialLabs AI (gpt-6-luna), falling back smoothly to local resume questions.
+ */
+export async function startInterviewSession(
+  role: string,
+  level: string,
+  profile: SavedProfile | null,
+  jobDescription?: string,
+  explicitRoleTrack?: boolean,
+): Promise<InterviewStartResponse> {
+  const agentProfile = enrichProfileForAgent(profile)
+  await ensureApiSession()
+
+  // 1. Try backend server if running
+  try {
+    const res = await apiFetch('/api/interview/start', {
+      method: 'POST',
+      body: JSON.stringify({
+        role,
+        level,
+        profile: agentProfile,
+        jobDescription,
+        adaptive: true,
+        explicitRoleTrack: Boolean(explicitRoleTrack),
+      }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const adaptive = data.adaptive !== false && Boolean(data.adaptive ?? data.mode === 'adaptive')
+      const questions = data.questions
+      const hasQuestions =
+        Array.isArray(questions) &&
+        (adaptive ? questions.length >= 1 : questions.length >= 3)
+      if (hasQuestions) {
+        const llmAgent = data.agent === 'llm' || data.llm || data.agent === 'llm-adaptive'
+        return {
+          sessionId: data.sessionId || `session-${Date.now().toString(36)}`,
+          agent: llmAgent
+            ? 'Ava · gpt-6-luna · adaptive'
+            : data.agent || 'Ava · adaptive agent',
+          llm: Boolean(llmAgent),
+          total: adaptive ? questions.length : questions.length,
+          questions,
+          question: questions[0],
+          offline: false,
+          adaptive,
+        }
+      }
+    }
+  } catch {
+    // backend not running, proceed to direct ExperientialLabs call
+  }
+
+  // 2. Direct ExperientialLabs AI (gpt-6-luna) call — dev only
+  if (clientLlmAllowed()) {
+  try {
+    const lunaQuestions = await generateLunaQuestionsDirect(role, level, agentProfile, jobDescription)
+    if (lunaQuestions && lunaQuestions.length >= 3) {
+      return {
+        sessionId: `luna-${Date.now().toString(36)}`,
+        agent: 'Ava · gpt-6-luna (ExperientialLabs AI)',
+        llm: true,
+        total: lunaQuestions.length,
+        questions: lunaQuestions,
+        question: lunaQuestions[0],
+        offline: false,
+      }
+    }
+  } catch (err) {
+    console.warn('[InterviewAgent] Direct Luna generation fallback:', err)
+  }
+  }
+
+  // 3. Local adaptive fallback (one question at a time — branches on each answer)
+  const firstAdaptive = generateLocalAdaptiveQuestion(
+    role,
+    level,
+    agentProfile,
+    [],
+    '',
+    { explicitRoleTrack, jobDescription },
+  )
+  return {
+    sessionId: `local-${Date.now().toString(36)}`,
+    agent: 'Ava · local adaptive agent',
+    llm: false,
+    total: 1,
+    questions: [firstAdaptive],
+    question: firstAdaptive,
+    offline: true,
+    adaptive: true,
+  }
+}
+
+export async function pingInterviewIntegrity(
+  sessionId: string | null,
+  faceCount: number,
+): Promise<void> {
+  if (!sessionId) return
+  try {
+    await apiFetch('/api/interview/integrity', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId, faceCount }),
+    })
+  } catch {
+    // client-side integrity still applies
+  }
+}
+
+export type InterviewTurnResponse = {
+  spoken: string
+  interactive?: boolean
+  agent?: string
+}
+
+/** Ava acknowledges the answer and bridges to the next question (interactive agent). */
+export async function processInterviewTurn(options: {
+  sessionId: string | null
+  role: string
+  level: string
+  question: Question
+  answer: string
+  questionIndex: number
+  totalQuestions: number
+  nextQuestion?: Question
+  profile: SavedProfile | null
+}): Promise<InterviewTurnResponse> {
+  await ensureApiSession()
+  const agentProfile = enrichProfileForAgent(options.profile)
+  const first = candidateFirstName(agentProfile)
+  const fallback = (words: number) => {
+    if (words < 8) {
+      return `Thanks ${first}. Add a concrete example from your resume when you can — let's continue. `
+    }
+    if (words < 22) {
+      return `Thanks ${first}, I appreciate that. Let's go deeper on the next one. `
+    }
+    return `Great, ${first} — that helps. Let's move on. `
+  }
+  const wordCount = options.answer.trim().split(/\s+/).filter(Boolean).length
+
+  try {
+    const res = await apiFetch('/api/interview/turn', {
+      method: 'POST',
+      body: JSON.stringify({
+        sessionId: options.sessionId,
+        role: options.role,
+        level: options.level,
+        profile: agentProfile,
+        question: options.question,
+        answer: options.answer,
+        questionIndex: options.questionIndex,
+        totalQuestions: options.totalQuestions,
+        nextQuestion: options.nextQuestion,
+      }),
+    })
+    if (res.ok) {
+      const data = (await res.json()) as InterviewTurnResponse
+      if (data.spoken?.trim()) return data
+    }
+  } catch {
+    // local fallback
+  }
+
+  return { spoken: fallback(wordCount), interactive: false, agent: 'local-bridge' }
+}
+
+/**
+ * Score interview responses with ExperientialLabs AI (gpt-6-luna)
+ */
+async function scoreWithLunaDirect(options: {
+  role: string
+  level: string
+  questions: Question[]
+  answers: string[]
+  profile: SavedProfile | null
+  integrity: IntegritySnapshot
+}): Promise<InterviewResult | null> {
+  if (!EXPERIENTIALLABS_API_KEY) return null
+
+  const qas = options.questions.map((q, i) => ({
+    questionNumber: i + 1,
+    questionText: q.text,
+    category: q.category,
+    candidateAnswer: options.answers[i] || '(No response provided)',
+    resumeAnchor: q.resumeAnchor || 'General experience',
+  }))
+
+  const system = `You are Ava, HireRight's chief AI assessment evaluator powered by gpt-6-luna.
+Evaluate the candidate's interview responses against their resume, technical depth, STAR structure, clarity, and the target role: ${options.role} (${options.level}).
+
+Scoring Standards:
+- Score 90-100: Exceptional, concrete metrics, clear architecture/tools, direct resume alignment.
+- Score 75-89: Solid answers with good technical depth and clear examples.
+- Score 50-74: Basic response with limited detail or missing outcomes.
+- Score <50: Incomplete, evasive, or missing answers.
+
+Return ONLY valid JSON matching this schema:
+{
+  "overall": 85,
+  "categories": [
+    {"label": "Technical", "score": 88},
+    {"label": "Communication", "score": 82},
+    {"label": "Problem Solving", "score": 86},
+    {"label": "Experience", "score": 84}
+  ],
+  "strengths": ["...", "...", "..."],
+  "improvements": ["...", "..."],
+  "resumeFitScore": 88,
+  "feedback": "Comprehensive summary evaluation of candidate's technical capability...",
+  "answerFeedback": [
+    {"score": 88, "feedback": "..."},
+    {"score": 82, "feedback": "..."}
+  ]
+}`
+
+  const user = JSON.stringify({
+    role: options.role,
+    level: options.level,
+    candidateFirstName: candidateFirstName(options.profile),
+    candidateFullName:
+      options.profile?.fullName ||
+      options.profile?.name ||
+      candidateFullName() ||
+      'Candidate',
+    resumeSkills: options.profile?.skills || [],
+    qas,
+  })
+
+  try {
+    const res = await fetch(`${EXPERIENTIALLABS_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${EXPERIENTIALLABS_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: EXPERIENTIALLABS_MODEL,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        temperature: 0.2,
+      }),
+    })
+
+    if (!res.ok) return null
+    const data = await res.json()
+    const content = data.choices?.[0]?.message?.content || ''
+    const match = content.match(/\{[\s\S]*\}/)
+    if (!match) return null
+
+    const parsed = JSON.parse(match[0])
+    const overall = typeof parsed.overall === 'number' ? parsed.overall : 80
+
+    const categories = Array.isArray(parsed.categories) && parsed.categories.length === 4
+      ? parsed.categories
+      : [
+          { label: 'Communication', score: overall },
+          { label: 'Technical', score: overall },
+          { label: 'Problem Solving', score: overall },
+          { label: 'Experience', score: overall },
+        ]
+
+    const strengths = Array.isArray(parsed.strengths) ? parsed.strengths.map(String) : []
+    const improvements = Array.isArray(parsed.improvements) ? parsed.improvements.map(String) : []
+
+    const answers: AnswerAnalysis[] = options.questions.map((q, i) => {
+      const fb = parsed.answerFeedback?.[i]
+      const answerText = options.answers[i] || ''
+      return {
+        question: q.text,
+        answer: answerText,
+        score: typeof fb?.score === 'number' ? fb.score : overall,
+        wordCount: answerText.split(/\s+/).filter(Boolean).length,
+        keywordsHit: q.keywords.filter((k) => answerText.toLowerCase().includes(k.toLowerCase())),
+        feedback: fb?.feedback || (answerText.length > 20 ? 'Solid response provided.' : 'Too brief.'),
+      }
+    })
+
+    return {
+      role: options.role,
+      level: options.level,
+      date: new Date().toISOString(),
+      overall,
+      categories,
+      strengths: strengths.slice(0, 5),
+      improvements: improvements.slice(0, 5),
+      answers,
+      resumeFitScore: typeof parsed.resumeFitScore === 'number' ? parsed.resumeFitScore : overall,
+      agent: 'Ava · gpt-6-luna (ExperientialLabs AI)',
+      integrity: {
+        faceViolations: options.integrity.faceViolations || 0,
+        singlePersonOk: options.integrity.singlePersonOk !== false,
+        maxFacesSeen: options.integrity.maxFacesSeen || 1,
+        banned: options.integrity.banned,
+        banReason: options.integrity.banReason,
+        sideLookWarnings: options.integrity.sideLookWarnings,
+        tooFarWarnings: options.integrity.tooFarWarnings,
+        logs: options.integrity.logs,
+      },
+    }
+  } catch (err) {
+    console.warn('[scoreWithLunaDirect] Error:', err)
+    return null
+  }
+}
+
+/**
+ * Score full interview remotely or with direct gpt-6-luna.
+ */
+export async function scoreInterviewRemote(options: {
+  sessionId: string | null
+  role: string
+  level: string
+  questions: Question[]
+  answers: string[]
+  profile: SavedProfile | null
+  integrity: IntegritySnapshot
+}): Promise<InterviewResult> {
+  const agentProfile = enrichProfileForAgent(options.profile)
+  await ensureApiSession()
+
+  // 1. Backend scoring (resume agent + optional LLM refine)
+  try {
+    const res = await apiFetch('/api/interview/score', {
+      method: 'POST',
+      body: JSON.stringify({
+        sessionId: options.sessionId,
+        role: options.role,
+        level: options.level,
+        questions: options.questions,
+        answers: options.answers,
+        profile: agentProfile,
+        integrity: options.integrity,
+      }),
+    })
+    if (res.ok) {
+      const data = await res.json()
+      if (data.interview) {
+        return data.interview as InterviewResult
+      }
+    }
+  } catch {
+    // continue to Luna / local
+  }
+
+  // 2. Direct Luna scoring — dev only
+  if (clientLlmAllowed()) {
+    try {
+      const scored = await scoreWithLunaDirect({ ...options, profile: agentProfile })
+      if (scored) return scored
+    } catch (err) {
+      console.warn('[scoreInterviewRemote] Direct score error, falling back to local score:', err)
+    }
+  }
+
+  // 3. Local interview scoring
+  return runLocalInterviewScore({ ...options, profile: agentProfile })
+}
+
+/** @deprecated use buildResumeInterviewQuestions */
+export function buildLocalResumeQuestions(
+  role: string,
+  level: string,
+  profile: SavedProfile | null,
+  jobDescription?: string,
+): Question[] {
+  return buildResumeInterviewQuestions(role, level, profile, jobDescription)
+}

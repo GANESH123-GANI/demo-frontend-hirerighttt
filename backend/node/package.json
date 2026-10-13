@@ -1,0 +1,13 @@
+{
+  "name": "hirerighttt-backend-node",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
+  }
+}

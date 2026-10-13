@@ -1,0 +1,80 @@
+# Production stack with self-hosted Postgres (optional).
+# For Supabase-managed Postgres + Auth, prefer:
+#   docker compose -f docker-compose.supabase.prod.yml up -d --build
+#
+# Usage: copy .env.production.example to .env and run:
+#   docker compose -f docker-compose.prod.yml --profile self-hosted-db up -d --build
+
+services:
+  postgres:
+    profiles: ["self-hosted-db"]
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hireright}
+      POSTGRES_USER: ${POSTGRES_USER:-hireright}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - hireright-postgres-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-hireright} -d ${POSTGRES_DB:-hireright}']
+      interval: 10s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend/node
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: production
+      NODE_ENV: production
+      PORT: 8787
+      TRUST_PROXY: "true"
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-hireright}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-hireright}}
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS:?Set CORS_ORIGINS}
+      ALLOW_DEMO_ACCOUNTS: ${ALLOW_DEMO_ACCOUNTS:-false}
+      SIGNUP_ENABLED: ${SIGNUP_ENABLED:-true}
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      EXPERIENTIALLABS_API_KEY: ${EXPERIENTIALLABS_API_KEY:?Set EXPERIENTIALLABS_API_KEY}
+      OPENAI_API_KEY: ${EXPERIENTIALLABS_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.experientiallabs.ai/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8787/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: ${PUBLIC_API_URL:-}
+        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-supabase}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  hireright-postgres-prod:

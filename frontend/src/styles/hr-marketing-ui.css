@@ -1,0 +1,107 @@
+/* Shared marketing UI — matches homepage “Why HireRight” cards sitewide */
+
+.hr-marketing-band {
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #e5e5ef;
+}
+
+.hr-marketing-section {
+  width: var(--hr-layout-width, 85%);
+  max-width: var(--hr-layout-width, 85%);
+  margin: 0 auto;
+  padding: clamp(3rem, 6vw, 4rem) 0 clamp(2.5rem, 5vw, 3.5rem);
+  box-sizing: border-box;
+}
+
+.hr-marketing-kicker {
+  display: block;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5f6686;
+  margin: 0 0 0.5rem;
+}
+
+.hr-marketing-title {
+  text-align: center;
+  font-size: var(--text-h2);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #141638;
+  margin: 0 auto 2rem;
+  line-height: 1.25;
+  max-width: 42rem;
+}
+
+.hr-marketing-lead {
+  text-align: center;
+  font-size: var(--text-h4);
+  font-weight: 400;
+  line-height: 1.65;
+  color: #5f6686;
+  max-width: 40rem;
+  margin: -1rem auto 2rem;
+}
+
+.hr-surface-card {
+  background: #ffffff;
+  border: 1px solid #e5e5ef;
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hr-surface-card:hover {
+  border-color: #d6d7e5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.hr-icon-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f3fb;
+  color: #141638;
+  flex-shrink: 0;
+}
+
+.hr-icon-tile-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.hr-card-title {
+  margin: 1rem 0 0;
+  font-size: var(--text-h3);
+  font-weight: 700;
+  color: #141638;
+  line-height: 1.35;
+}
+
+.hr-card-body {
+  margin: 0.45rem 0 0;
+  font-size: var(--text-h4);
+  font-weight: 400;
+  line-height: 1.6;
+  color: #5f6686;
+}
+
+.hr-accent-line {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f5f3fb;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #0d9488;
+}

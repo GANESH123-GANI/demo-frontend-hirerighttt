@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - name: Build frontend (production-safe env)
+        env:
+          VITE_AUTH_PROVIDER: supabase
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder
+        run: npm run build
+
+      - name: Production config smoke (Node API)
+        working-directory: backend/node
+        env:
+          ENVIRONMENT: production
+          DATABASE_URL: postgresql://u:p@localhost:5432/db?sslmode=require
+          SESSION_SECRET: ci-smoke-test-secret-at-least-32-chars-long
+          CORS_ORIGINS: https://app.example.com
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_JWT_SECRET: ci-jwt-secret-placeholder-32chars
+          EXPERIENTIALLABS_API_KEY: ci-key-placeholder
+        run: node -e "import('./config.mjs').then((m)=>m.assertProductionConfig())"

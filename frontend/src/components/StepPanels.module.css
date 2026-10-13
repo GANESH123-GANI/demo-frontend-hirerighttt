@@ -1,0 +1,361 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.fourCol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  animation: fade-up 0.4s var(--ease) both;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sectionHead h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+}
+
+.sectionHead p {
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.chipGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #334155;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.chipActive {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #be123c;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.chipActive:hover {
+  background: #dbeafe;
+  color: #9f1239;
+}
+
+.aiCard {
+  gap: 20px;
+}
+
+.aiHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.aiAvatar {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e11d48, #38bdf8);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.aiPulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 18px;
+  border: 2px solid rgba(56, 189, 248, 0.45);
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+.aiHeader h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.aiHeader p {
+  font-size: 0.84rem;
+  color: #475569;
+  margin-top: 2px;
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.questionBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #334155;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.questionBtn:hover {
+  border-color: #e11d48;
+  transform: translateX(2px);
+}
+
+.questionActive {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #e11d48;
+  color: #0f172a;
+}
+
+.qNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e11d48;
+  flex-shrink: 0;
+}
+
+.questionActive .qNum {
+  background: #e11d48;
+  border-color: #e11d48;
+  color: #ffffff;
+}
+
+.aiPrompt {
+  padding: 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.aiPrompt p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #334155;
+}
+
+.aiTip {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.micBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+}
+
+.micBtn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #f8fafc;
+  display: grid;
+  place-items: center;
+  transition: all 0.25s ease;
+}
+
+.micBtn svg {
+  width: 26px;
+  height: 26px;
+}
+
+.micBtn:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.micActive {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25);
+  animation: pulse-glow 1.2s ease-in-out infinite;
+}
+
+.completeCard {
+  align-items: center;
+  text-align: center;
+  padding: 40px 28px;
+  gap: 14px;
+}
+
+.successBadge {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.35);
+  animation: check-pop 0.55s var(--ease);
+}
+
+.successBadge svg {
+  width: 34px;
+  height: 34px;
+}
+
+.completeCard h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.completeCard > p {
+  max-width: 460px;
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.summaryGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.summaryItem {
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(30, 41, 59, 0.5);
+  transition: all 0.2s ease;
+}
+
+.summaryItem:hover {
+  border-color: #38bdf8;
+  background: rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
+}
+
+.summaryItem span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #38bdf8;
+}
+
+.summaryItem strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.primaryWide {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: #e11d48;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+}
+
+.primaryWide svg {
+  width: 18px;
+  height: 18px;
+}
+
+.primaryWide:hover {
+  background: #be123c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(37, 99, 235, 0.6);
+}
+
+@media (max-width: 1280px) {
+  .fourCol {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .twoCol,
+  .fourCol,
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 18px 16px;
+  }
+}

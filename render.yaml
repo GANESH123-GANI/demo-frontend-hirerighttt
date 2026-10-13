@@ -1,0 +1,37 @@
+services:
+  # -------------------------------------------------------------
+  # HIRE RIGHT - BACKEND NODE.JS API WEB SERVICE ON RENDER
+  # -------------------------------------------------------------
+  - type: web
+    name: hireright-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend/node
+    buildCommand: npm install
+    startCommand: node index.mjs
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ENVIRONMENT
+        value: production
+      - key: PORT
+        value: 8787
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: ALLOW_DEMO_ACCOUNTS
+        value: "true"
+      - key: SIGNUP_ENABLED
+        value: "true"
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: EXPERIENTIALLABS_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false

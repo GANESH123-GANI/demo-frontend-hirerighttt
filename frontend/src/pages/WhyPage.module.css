@@ -1,0 +1,309 @@
+.page {
+  min-height: 100vh;
+  background: #ffffff;
+  color: var(--hr-text, #141638);
+  display: flex;
+  flex-direction: column;
+}
+
+.shell {
+  width: var(--hr-layout-width, 85%);
+  max-width: var(--hr-layout-width, 85%);
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  box-sizing: border-box;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1.25rem 2.5rem;
+  max-width: 56rem;
+  margin: 0 auto 2rem;
+  background: linear-gradient(135deg, var(--hr-navy-deep, #060d18), var(--hr-navy, #0a1628));
+  border-radius: 0 0 20px 20px;
+  color: #fff;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: #f5f2ff;
+  border: 1px solid #ded3ff;
+  color: #6036eb;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: var(--text-page-title);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 18px;
+}
+
+.title em {
+  font-style: normal;
+  color: var(--hr-accent, #7047ff);
+}
+
+.subtitle {
+  font-size: var(--text-lead);
+  line-height: 1.65;
+  color: #d6d7e5;
+  max-width: 720px;
+  margin: 0 auto 36px;
+}
+
+/* Comparison Table Matrix */
+.matrixCard {
+  background: #ffffff;
+  border: 1px solid #e5e5ef;
+  border-radius: 20px;
+  padding: 36px;
+  margin-bottom: 64px;
+  overflow-x: auto;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.matrixTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.matrixTable th {
+  padding: 16px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-bottom: 2px solid #e5e5ef;
+  text-align: left;
+  color: #141638;
+}
+
+.matrixTable th:nth-child(2) {
+  color: #5f6686;
+}
+
+.matrixTable th:nth-child(3) {
+  color: #7047ff;
+  background: #f5f2ff;
+  border-radius: 10px 10px 0 0;
+}
+
+.matrixTable td {
+  padding: 16px 20px;
+  font-size: 0.92rem;
+  border-bottom: 1px solid #f5f3fb;
+  color: #363b5c;
+}
+
+.matrixTable tr:last-child td {
+  border-bottom: none;
+}
+
+.matrixTable td:first-child {
+  font-weight: 600;
+  color: #141638;
+}
+
+.matrixTable td:nth-child(2) {
+  color: #ef4444;
+}
+
+.matrixTable td:nth-child(3) {
+  color: #059669;
+  background: #f0fdf4;
+  font-weight: 600;
+}
+
+/* Pillars Grid */
+.pillarsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 64px;
+}
+
+.pillarCard {
+  background: #ffffff;
+  border: 1px solid #e5e5ef;
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pillarCard:hover {
+  border-color: #d6d7e5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.compareIconBad,
+.compareIconGood {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.65rem;
+  flex-shrink: 0;
+}
+
+.compareIconBad {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.compareIconGood {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.tableMarkBad,
+.tableMarkGood {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.tableMarkBad {
+  color: #5f6686;
+}
+
+.tableMarkGood {
+  color: #363b5c;
+}
+
+.pillarIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f5f3fb;
+  color: #141638;
+  margin-bottom: 16px;
+}
+
+.pillarCard h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #141638;
+  margin-bottom: 10px;
+}
+
+.pillarCard p {
+  font-size: 0.9rem;
+  color: #5f6686;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ROI Calculator */
+.roiCard {
+  background: #ffffff;
+  border: 1px solid #e5e5ef;
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 64px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+.roiGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .roiGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.roiControl {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roiControl label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #141638;
+}
+
+.roiSlider {
+  width: 100%;
+  accent-color: #7047ff;
+  height: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.roiDisplayBox {
+  background: #faf9ff;
+  border: 1px solid #e5e5ef;
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.roiStat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.roiStat span:first-child {
+  color: #5f6686;
+}
+
+.roiStat strong {
+  font-size: 1.4rem;
+  color: #7047ff;
+}
+
+.paradigmGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding: 0 16px 60px;
+  }
+  .hero {
+    padding: 2.25rem 1rem 2rem;
+    border-radius: 0 0 16px 16px;
+  }
+  .paradigmGrid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .matrixCard {
+    padding: 20px 14px;
+  }
+  .pillarsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .roiCard {
+    padding: 24px 16px;
+  }
+}

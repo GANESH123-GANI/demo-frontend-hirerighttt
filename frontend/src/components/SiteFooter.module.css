@@ -1,0 +1,142 @@
+.footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--hr-navy-deep, #060d18);
+  color: #cbd5e1;
+  padding: 3rem 1.25rem 1.5rem;
+  margin-top: auto;
+}
+
+.grid {
+  width: var(--hr-layout-width, 85%);
+  max-width: var(--hr-layout-width, 85%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 2.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.logoHire {
+  color: #fff;
+}
+
+.logoRight {
+  color: var(--hr-red, #e11d48);
+}
+
+.tagline {
+  margin-top: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 280px;
+  color: #94a3b8;
+}
+
+.grid h4 {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.grid a {
+  display: block;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 1.05rem;
+  padding: 0.38rem 0;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.grid a:hover {
+  color: #fff;
+  transform: translateX(2px);
+}
+
+.bottom {
+  width: var(--hr-layout-width, 85%);
+  max-width: var(--hr-layout-width, 85%);
+  margin: 2.5rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+
+.social {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.social a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.social a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.footerLight {
+  background: #f7f5f0;
+  color: #5c5c5c;
+  border-top: 1px solid #e0ddd6;
+}
+
+.footerLight .logoHire,
+.footerLight .grid h4 {
+  color: #0a0a0a;
+}
+
+.footerLight .logoRight {
+  color: #0a0a0a;
+}
+
+.footerLight .tagline,
+.footerLight .grid a {
+  color: #5c5c5c;
+}
+
+.footerLight .grid a:hover {
+  color: #0a0a0a;
+}
+
+.footerLight .bottom {
+  border-top-color: #e0ddd6;
+  color: #8a8780;
+}
+
+.footerLight .social a {
+  border-color: #e0ddd6;
+  color: #5c5c5c;
+}
+
+.footerLight .social a:hover {
+  background: #eceae4;
+  color: #0a0a0a;
+}

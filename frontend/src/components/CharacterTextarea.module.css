@@ -1,0 +1,11 @@
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; width: 100%; }
+.label { color: #171b38; font-size: 17px; font-weight: 650; line-height: 22px; }
+.sublabel { color: #5f6686; font-size: 14.5px; line-height: 20px; }
+.wrap { position: relative; width: 100%; }
+.textarea { display: block; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; resize: vertical; min-height: 125px; padding: 13px 15px 30px; border: 1px solid #dfe2ec; border-radius: 8px; background: #fff; color: #171b38; font-family: inherit; font-size: 15.5px; line-height: 22px; transition: border-color .15s ease,box-shadow .15s ease; }
+.textarea[rows='3'] { min-height: 95px; height: 95px; }
+.textarea::placeholder { color: #969db6; opacity: 1; }
+.textarea:hover { border-color: #bab2e8; }
+.textarea:focus { outline: none; border-color: #7047ff; box-shadow: 0 0 0 3px rgb(112 71 255 / 12%); }
+.counter { position: absolute; right: 14px; bottom: 10px; color: #929ab2; font-size: 12.5px; line-height: 16px; pointer-events: none; }
+.warn { color: #dc3545; }
