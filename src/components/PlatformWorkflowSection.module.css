@@ -1,0 +1,136 @@
+.toggleRow {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.pillBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  color: #52525b;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.pillBtn:hover {
+  background: #fafafa;
+  border-color: #d4d4d8;
+  color: #18181b;
+}
+
+.pillBtnActive {
+  background: #ffffff;
+  border-color: #e11d48;
+  color: #e11d48;
+  box-shadow: 0 0 0 1px rgba(225, 29, 72, 0.08);
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1100px) {
+  .stepsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stepHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.stepNum {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #e4e4e7;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.45rem;
+  border-radius: 999px;
+  background: #0a0a0a;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.primaryCta:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.secondaryCta {
+  padding: 0.75rem 1.35rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  color: #0a0a0a;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.secondaryCta:hover {
+  background: #fafafa;
+  border-color: #d4d4d8;
+}
+
+.ctaKickerTeal {
+  color: #0d9488;
+}
+
+.ctaTitle {
+  margin: 0;
+  font-size: var(--text-h2, clamp(1.75rem, 3.2vw, 2.25rem));
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #0a0a0a;
+  line-height: 1.25;
+}
+
+.ctaBody {
+  margin: 0.75rem auto 1.35rem;
+  max-width: 36rem;
+  font-size: var(--text-h4, 1.125rem);
+  font-weight: 400;
+  line-height: 1.65;
+  color: #71717a;
+}

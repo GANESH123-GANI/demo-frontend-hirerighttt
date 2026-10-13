@@ -1,0 +1,26 @@
+/* Reference layout: narrow navy rail, white canvas and restrained violet controls. */
+.layout { display:flex; min-height:100vh; background:#fff; color:#141638; }
+.main { flex:1; min-width:0; display:flex; flex-direction:column; gap:26px; padding:0 38px 32px; }
+.pageHeader h1 { font-size:30px; font-weight:700; line-height:1.3; letter-spacing:-.4px; color:#141638; margin:0; }
+.pageHeader h2, .pageHeader h3, .pageHeader p { margin-top:8px; color:#5f6686; font-size:17px; font-weight:500; line-height:1.55; }
+.panel { width:100%; }
+.actions,.actionsSplit { display:flex; align-items:center; justify-content:space-between; gap:18px; padding-top:10px; }
+.actionRight { display:flex; gap:14px; }
+.primaryBtn,.secondaryBtn,.backBtn,.ghostBtn { display:inline-flex; align-items:center; justify-content:center; gap:16px; height:48px; padding:0 28px; border-radius:8px; font-size:15.5px; font-weight:600; cursor:pointer; transition:background .2s; }
+.primaryBtn { border:1px solid #7047ff; background:linear-gradient(110deg,#794fff,#6840fa); color:white; margin-left:auto; }
+.primaryBtn:hover:not(:disabled) { background:#6035ed; }
+.secondaryBtn,.backBtn { border:1px solid #a48bff; background:white; color:#7047ff; }
+.secondaryBtn:hover,.backBtn:hover { background:#f7f4ff; }
+.ghostBtn { border:0; background:transparent; color:#5f6686; }
+.primaryBtn svg,.backBtn svg { width:20px; height:20px; }
+.primaryBtn:disabled,.secondaryBtn:disabled { opacity:.5; cursor:not-allowed; }
+.autoSave { display:none; }
+.autoSaveDot { display:none; }
+.stepHint { text-align:center; color:#777f9d; font-size:11px; }
+.toast { position:fixed; bottom:28px; right:28px; z-index:80; display:flex; align-items:center; gap:10px; padding:14px 20px; border-radius:10px; background:#141638; color:white; box-shadow:0 8px 30px #14163825; font-size:13px; }
+.toastDot { width:8px; height:8px; border-radius:50%; background:#29bb78; }
+@media(min-width:1440px) { .main { padding-inline:48px; } }
+@media(max-width:760px) { .layout { display:block; } .main { padding:0 16px 24px; gap:20px; } .pageHeader h1 { font-size:20px; } .actions { flex-wrap:wrap; } .primaryBtn,.secondaryBtn,.backBtn { padding-inline:16px; } .toast { left:16px; right:16px; } }
+@media(max-width:380px) { .actions { flex-direction:column-reverse; align-items:stretch; } .primaryBtn,.actionRight { width:100%; } }
+.layout { --font-display: var(--font); }
+.stepHint { display:none; }

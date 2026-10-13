@@ -1,0 +1,117 @@
+.field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 16.5px;
+  font-weight: 650;
+  color: #171b38;
+  line-height: 1.25;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #626b88;
+  font-size: 15.5px;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.trigger:hover {
+  border-color: #cbd5e1;
+}
+
+.trigger.open,
+.trigger:focus-visible {
+  border-color: #7047ff;
+  box-shadow: 0 0 0 1px #7047ff, 0 0 0 3px rgba(112, 71, 255, 0.12);
+  outline: none;
+}
+
+.filled {
+  color: #171b38;
+  font-weight: 500;
+}
+
+.chevron {
+  width: 18px;
+  height: 18px;
+  color: #626b88;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  flex-shrink: 0;
+}
+
+.open .chevron {
+  transform: rotate(180deg);
+  color: #7047ff;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  padding: 5px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: #171b38;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  box-sizing: border-box;
+}
+
+.option:hover {
+  background: #f8fafc;
+  color: #171b38;
+}
+
+.option.selected {
+  background: #f5f3ff;
+  color: #7047ff;
+  font-weight: 600;
+}
+
+.option svg {
+  width: 16px;
+  height: 16px;
+  color: #7047ff;
+  flex-shrink: 0;
+}

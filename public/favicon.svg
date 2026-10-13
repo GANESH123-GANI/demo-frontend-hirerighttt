@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <rect width="48" height="48" rx="10" fill="#07122a"/>
+  <!-- Top Right bracket -->
+  <path d="M42 15h-6v-6" stroke="#ffffff" stroke-width="2.5" stroke-linecap="square"/>
+  <!-- Bottom Left bracket -->
+  <path d="M21 34h6v6" stroke="#ffffff" stroke-width="2.5" stroke-linecap="square"/>
+  <!-- HIRE text -->
+  <text x="5" y="27" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="12" letter-spacing="-0.5">HIRE</text>
+  <!-- RIGHT text -->
+  <text x="24" y="27" fill="#e5252a" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="12" letter-spacing="-0.5">RIGHT</text>
+  <!-- Tagline dot accent -->
+  <circle cx="24" cy="38" r="1.5" fill="#e5252a"/>
+</svg>

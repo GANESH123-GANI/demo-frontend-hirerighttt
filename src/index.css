@@ -1,0 +1,452 @@
+:root {
+  --hr-layout-width: 85%;
+  --hr-navy: #07122a;
+  --hr-navy-deep: #050b18;
+  --hr-red: #e53935;
+  --hr-red-hover: #d32f2f;
+  --hr-muted: #64748b;
+  --hr-border: #e2e8f0;
+  --hr-text: #1e293b;
+  /* Stripe / Vercel Crisp Light Foundation */
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-elevated: #ffffff;
+
+  /* Crisp Slate & Neutral Palette */
+  --space-dark-950: #090d16;
+  --space-dark-900: #0f172a;
+  --space-dark-850: #1e293b;
+  --space-dark-800: #334155;
+
+  --space-blue-800: #1e40af;
+  --space-blue-700: #1d4ed8;
+  --space-blue-600: #2563eb;
+  --space-blue-500: #3b82f6;
+  --space-blue-400: #60a5fa;
+  --space-blue-300: #93c5fd;
+  --space-cyan-400: #38bdf8;
+  --space-cyan-300: #7dd3fc;
+
+  /* Brand accents */
+  --brand-primary: #2563eb;
+  --brand-hover: #1d4ed8;
+  --brand-active: #1e40af;
+  --brand-light: #eff6ff;
+  --brand-border: #bfdbfe;
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  --brand-glow: 0 4px 20px rgba(37, 99, 235, 0.25);
+
+  --purple-50: #f8fafc;
+  --purple-100: #f1f5f9;
+  --purple-200: #e2e8f0;
+  --purple-300: #93c5fd;
+  --purple-400: #60a5fa;
+  --purple-500: #2563eb;
+  --purple-600: #1d4ed8;
+  --purple-700: #1e40af;
+  --purple-800: #1e3a8a;
+  --navy-900: #090d16;
+  --navy-850: #0f172a;
+  --navy-800: #1e293b;
+
+  /* Crisp Borders */
+  --border-subtle: #f1f5f9;
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-active: #2563eb;
+
+  /* Grays */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  /* Semantic */
+  --green-500: #10b981;
+  --green-600: #059669;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --orange-500: #f59e0b;
+  --orange-600: #d97706;
+  --orange-100: #fef3c7;
+
+  --white: #ffffff;
+  --space-blue-gradient: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
+  --space-glow: 0 4px 20px rgba(37, 99, 235, 0.2);
+
+  /* Stripe / Vercel Layered Precision Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 14px -1px rgba(15, 23, 42, 0.07), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 24px 48px -12px rgba(15, 23, 42, 0.12);
+  --shadow-btn: 0 2px 6px rgba(37, 99, 235, 0.28), 0 1px 2px rgba(37, 99, 235, 0.16);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font: 'Inter', 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-serif: 'STIX Two Text', Georgia, serif;
+  --sidebar-width: 320px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ==========================================================================
+     HIERARCHICAL TYPOGRAPHY SYSTEM
+     Tier 1: Heading     -> h2 (Section titles, major headers)
+     Tier 2: Sub Heading -> h3 (Card titles, step titles, item headers)
+     Tier 3: Content     -> h4 (Body text, descriptions, labels)
+     ========================================================================== */
+  --text-h1: clamp(2.35rem, 4.8vw, 3.15rem);
+  --text-h2: clamp(1.75rem, 3.2vw, 2.25rem); /* Heading */
+  --text-h3: clamp(1.25rem, 2.2vw, 1.45rem); /* Sub Heading */
+  --text-h4: clamp(1rem, 1.6vw, 1.15rem);    /* Content */
+
+  /* Semantic Typography Mapping */
+  --font-size-heading: var(--text-h2);
+  --font-size-subheading: var(--text-h3);
+  --font-size-content: var(--text-h4);
+
+  --text-page-title: var(--text-h1);
+  --text-section-title: var(--text-h2);
+  --text-subheading: var(--text-h3);
+  --text-card-title: var(--text-h3);
+  --text-lead: var(--text-h4);
+  --text-body: var(--text-h4);
+  --text-content: var(--text-h4);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body,
+button,
+input,
+textarea,
+select,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+span,
+label,
+div {
+  font-family: var(--font);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 18px;
+  color: #1a1a1a;
+  background-color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.65;
+}
+
+/* Tier 0: Hero / Page Title */
+h1,
+.site-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: #090d16;
+}
+
+/* Tier 1: Heading -> h2 */
+h2,
+.heading-h2,
+.site-heading,
+.sectionTitle,
+.howTitle,
+.hr-marketing-title,
+.ctaTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: #090d16;
+}
+
+/* Tier 2: Sub Heading -> h3 */
+h3,
+.subheading-h3,
+.site-subheading,
+.hr-card-title,
+.jobTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: #090d16;
+}
+
+/* Tier 3: Content -> h4 */
+h4,
+.content-h4,
+.site-content,
+.hr-card-body,
+.hr-marketing-lead {
+  font-family: var(--font);
+  font-size: var(--text-h4);
+  font-weight: 400;
+  line-height: 1.6;
+  color: #334155;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+::selection {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes wave-drift {
+  0% {
+    transform: translateX(0) translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateX(18px) translateY(-12px) scale(1.05);
+  }
+
+  100% {
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.12);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Enforce 85% width edge spacing across all page layout containers */
+.shell,
+.container,
+.siteContainer,
+.pageContainer,
+.hr-page-shell {
+  width: var(--hr-layout-width, 85%) !important;
+  max-width: var(--hr-layout-width, 85%) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* ===== HIGH-FIDELITY PRINT & WEB-TO-PDF EXPORT RULES ===== */
+@media print {
+
+  *,
+  *::before,
+  *::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    animation: none !important;
+    transition: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  [style*="opacity: 0"],
+  [style*="opacity:0"] {
+    opacity: 1 !important;
+  }
+
+  html,
+  body,
+  #root,
+  div,
+  section,
+  main,
+  article {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  section,
+  article,
+  tr {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html.hr-scorecard-print body * {
+    visibility: hidden !important;
+  }
+
+  html.hr-scorecard-print #career-intelligence-dashboard,
+  html.hr-scorecard-print #career-intelligence-dashboard * {
+    visibility: visible !important;
+  }
+
+  html.hr-scorecard-print #career-intelligence-dashboard {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 12mm 10mm !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html.hr-scorecard-print .printBtn,
+  html.hr-scorecard-print .actionButtonRow {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
