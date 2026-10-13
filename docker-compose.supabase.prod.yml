@@ -1,7 +1,7 @@
 # Production: Supabase Auth + Postgres (no bundled database).
 # Usage:
 #   cp .env.production.example .env
-#   # Set DATABASE_URL, SUPABASE_*, SESSION_SECRET, CORS_ORIGINS, EXPERIENTIALLABS_API_KEY
+#   # Set DATABASE_URL, SUPABASE_*, SESSION_SECRET, CORS_ORIGINS, GEMINI_API_KEY
 #   docker compose -f docker-compose.supabase.prod.yml up -d --build
 
 services:
@@ -22,10 +22,10 @@ services:
       SUPABASE_URL: ${SUPABASE_URL:?Set SUPABASE_URL}
       SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:?Set SUPABASE_JWT_SECRET}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
-      EXPERIENTIALLABS_API_KEY: ${EXPERIENTIALLABS_API_KEY:?Set EXPERIENTIALLABS_API_KEY}
-      OPENAI_API_KEY: ${EXPERIENTIALLABS_API_KEY}
-      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.experientiallabs.ai/v1}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?Set GEMINI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta/openai}
+      PRIMARY_MODEL: ${PRIMARY_MODEL:-gemini-2.5-flash}
+      FALLBACK_MODEL: ${FALLBACK_MODEL:-gemini-1.5-flash}
     restart: unless-stopped
     healthcheck:
       test:

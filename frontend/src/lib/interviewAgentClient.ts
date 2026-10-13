@@ -1,6 +1,6 @@
 /**
  * HireRight Interview Agent Client
- * Synchronized with ExperientialLabs AI (gpt-6-luna).
+ * Synchronized with Google Gemini AI (gemini-2.5-flash).
  * Generates interactive, resume-tailored questions and rubric scoring.
  */
 import type { Question } from './interviewEngine'
@@ -39,19 +39,21 @@ function candidateFirstName(profile: SavedProfile | null): string {
   return full.split(/\s+/)[0] || 'there'
 }
 
-const EXPERIENTIALLABS_API_KEY = clientLlmAllowed()
-  ? import.meta.env.VITE_EXPERIENTIALLABS_API_KEY || ''
+const GEMINI_API_KEY = clientLlmAllowed()
+  ? import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_OPENAI_API_KEY || ''
   : ''
-const EXPERIENTIALLABS_BASE_URL = (
+const GEMINI_BASE_URL = (
   typeof window !== 'undefined' && clientLlmAllowed()
     ? '/ai-proxy'
-    : import.meta.env.VITE_EXPERIENTIALLABS_BASE_URL || 'https://api.experientiallabs.ai/v1'
+    : import.meta.env.VITE_GEMINI_BASE_URL ||
+      import.meta.env.VITE_OPENAI_BASE_URL ||
+      'https://generativelanguage.googleapis.com/v1beta/openai'
 ).replace(/\/$/, '')
 const PRIMARY_MODEL =
   import.meta.env.VITE_PRIMARY_MODEL || 'gemini-2.5-flash'
 const FALLBACK_MODEL =
-  import.meta.env.VITE_FALLBACK_MODEL || 'gpt-6-luna'
-const EXPERIENTIALLABS_MODEL = PRIMARY_MODEL
+  import.meta.env.VITE_FALLBACK_MODEL || 'gemini-1.5-flash'
+const GEMINI_MODEL = PRIMARY_MODEL
 
 export type InterviewStartResponse = {
   sessionId: string | null
@@ -75,7 +77,7 @@ export type IntegritySnapshot = {
   logs?: IntegrityLogEvent[]
 }
 
-/** Check whether Gemini 2.5 Flash / Luna is live and operational */
+/** Check whether Gemini is live and operational */
 export async function checkLlmStatus(): Promise<{
   active: boolean
   model: string
@@ -94,23 +96,24 @@ export async function checkLlmStatus(): Promise<{
   }
 
   // 2. Direct ping to AI gateway (development only)
-  if (!clientLlmAllowed()) {
+  if (!clientLlmAllowed() || !GEMINI_API_KEY) {
     return {
       active: false,
       model: 'server-api',
       provider: 'HireRight API',
-      message: 'Use the Node API for LLM in production.',
+      message: 'Use the Node API for LLM in production (or set VITE_GEMINI_API_KEY).',
     }
   }
 
   const models = [PRIMARY_MODEL, FALLBACK_MODEL]
   for (const m of models) {
     try {
-      const directRes = await fetch(`${EXPERIENTIALLABS_BASE_URL}/chat/completions`, {
+      const directRes = await fetch(`${GEMINI_BASE_URL}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${EXPERIENTIALLABS_API_KEY}`,
+          Authorization: `Bearer ${GEMINI_API_KEY}`,
+          'x-goog-api-key': GEMINI_API_KEY,
         },
         body: JSON.stringify({
           model: m,
@@ -123,8 +126,8 @@ export async function checkLlmStatus(): Promise<{
         return {
           active: true,
           model: m,
-          provider: m.includes('gemini') ? 'Google Gemini' : 'OpenAI Luna',
-          message: `${m.includes('gemini') ? 'Google Gemini 2.5 Flash' : 'OpenAI Luna (gpt-6-luna)'} is LIVE and calibrated with candidate profile.`,
+          provider: 'Google Gemini',
+          message: `Google Gemini (${m}) is LIVE and calibrated with candidate profile.`,
         }
       }
     } catch {
@@ -142,16 +145,16 @@ export async function checkLlmStatus(): Promise<{
 
 /**
  * Generate resume-accurate questions directly using Gemini 2.5 Flash first,
- * falling back smoothly to OpenAI Luna (gpt-6-luna).
+ * falling back smoothly to Gemini 1.5 Flash.
  * Calibrated specifically for candidate's exact role and years of experience.
  */
-async function generateLunaQuestionsDirect(
+async function generateGeminiQuestionsDirect(
   role: string,
   level: string,
   profile: SavedProfile | null,
   jobDescription?: string,
 ): Promise<Question[] | null> {
-  if (!EXPERIENTIALLABS_API_KEY) return null
+  if (!GEMINI_API_KEY) return null
 
   const candidateName = candidateFirstName(profile)
   const candidateFull =
@@ -165,7 +168,7 @@ async function generateLunaQuestionsDirect(
     .join('\n')
   const resumeText = (profile?.resumeText || '').slice(0, 3500)
 
-  const system = `You are Ava, HireRight's friendly AI Technical Interviewer powered by Gemini (with Luna fallback).
+  const system = `You are Ava, HireRight's friendly AI Technical Interviewer powered by Google Gemini.
 You conduct an interactive, spoken video interview.
 
 ROLE & EXPERIENCE LEVEL CALIBRATION:
@@ -221,11 +224,12 @@ Return ONLY valid JSON matching this schema:
   const models = [PRIMARY_MODEL, FALLBACK_MODEL]
   for (const m of models) {
     try {
-      const res = await fetch(`${EXPERIENTIALLABS_BASE_URL}/chat/completions`, {
+      const res = await fetch(`${GEMINI_BASE_URL}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${EXPERIENTIALLABS_API_KEY}`,
+          Authorization: `Bearer ${GEMINI_API_KEY}`,
+          'x-goog-api-key': GEMINI_API_KEY,
         },
         body: JSON.stringify({
           model: m,
@@ -272,7 +276,7 @@ Return ONLY valid JSON matching this schema:
 
 /**
  * Start an interview session with Ava.
- * Tries ExperientialLabs AI (gpt-6-luna), falling back smoothly to local resume questions.
+ * Tries Google Gemini AI, falling back smoothly to local resume questions.
  */
 export async function startInterviewSession(
   role: string,
@@ -309,7 +313,7 @@ export async function startInterviewSession(
         return {
           sessionId: data.sessionId || `session-${Date.now().toString(36)}`,
           agent: llmAgent
-            ? 'Ava · gpt-6-luna · adaptive'
+            ? 'Ava · Google Gemini · adaptive'
             : data.agent || 'Ava · adaptive agent',
           llm: Boolean(llmAgent),
           total: adaptive ? questions.length : questions.length,
@@ -321,27 +325,27 @@ export async function startInterviewSession(
       }
     }
   } catch {
-    // backend not running, proceed to direct ExperientialLabs call
+    // backend not running, proceed to direct Gemini call
   }
 
-  // 2. Direct ExperientialLabs AI (gpt-6-luna) call — dev only
+  // 2. Direct Google Gemini call — dev only
   if (clientLlmAllowed()) {
-  try {
-    const lunaQuestions = await generateLunaQuestionsDirect(role, level, agentProfile, jobDescription)
-    if (lunaQuestions && lunaQuestions.length >= 3) {
-      return {
-        sessionId: `luna-${Date.now().toString(36)}`,
-        agent: 'Ava · gpt-6-luna (ExperientialLabs AI)',
-        llm: true,
-        total: lunaQuestions.length,
-        questions: lunaQuestions,
-        question: lunaQuestions[0],
-        offline: false,
+    try {
+      const geminiQuestions = await generateGeminiQuestionsDirect(role, level, agentProfile, jobDescription)
+      if (geminiQuestions && geminiQuestions.length >= 3) {
+        return {
+          sessionId: `gemini-${Date.now().toString(36)}`,
+          agent: 'Ava · Google Gemini 2.5 Flash',
+          llm: true,
+          total: geminiQuestions.length,
+          questions: geminiQuestions,
+          question: geminiQuestions[0],
+          offline: false,
+        }
       }
+    } catch (err) {
+      console.warn('[InterviewAgent] Direct Gemini generation fallback:', err)
     }
-  } catch (err) {
-    console.warn('[InterviewAgent] Direct Luna generation fallback:', err)
-  }
   }
 
   // 3. Local adaptive fallback (one question at a time — branches on each answer)
@@ -439,9 +443,9 @@ export async function processInterviewTurn(options: {
 }
 
 /**
- * Score interview responses with ExperientialLabs AI (gpt-6-luna)
+ * Score interview responses with Google Gemini AI (gemini-2.5-flash)
  */
-async function scoreWithLunaDirect(options: {
+async function scoreWithGeminiDirect(options: {
   role: string
   level: string
   questions: Question[]
@@ -449,7 +453,7 @@ async function scoreWithLunaDirect(options: {
   profile: SavedProfile | null
   integrity: IntegritySnapshot
 }): Promise<InterviewResult | null> {
-  if (!EXPERIENTIALLABS_API_KEY) return null
+  if (!GEMINI_API_KEY) return null
 
   const qas = options.questions.map((q, i) => ({
     questionNumber: i + 1,
@@ -459,7 +463,7 @@ async function scoreWithLunaDirect(options: {
     resumeAnchor: q.resumeAnchor || 'General experience',
   }))
 
-  const system = `You are Ava, HireRight's chief AI assessment evaluator powered by gpt-6-luna.
+  const system = `You are Ava, HireRight's chief AI assessment evaluator powered by Google Gemini.
 Evaluate the candidate's interview responses against their resume, technical depth, STAR structure, clarity, and the target role: ${options.role} (${options.level}).
 
 Scoring Standards:
@@ -501,14 +505,15 @@ Return ONLY valid JSON matching this schema:
   })
 
   try {
-    const res = await fetch(`${EXPERIENTIALLABS_BASE_URL}/chat/completions`, {
+    const res = await fetch(`${GEMINI_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${EXPERIENTIALLABS_API_KEY}`,
+        Authorization: `Bearer ${GEMINI_API_KEY}`,
+        'x-goog-api-key': GEMINI_API_KEY,
       },
       body: JSON.stringify({
-        model: EXPERIENTIALLABS_MODEL,
+        model: GEMINI_MODEL,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user },
@@ -561,7 +566,7 @@ Return ONLY valid JSON matching this schema:
       improvements: improvements.slice(0, 5),
       answers,
       resumeFitScore: typeof parsed.resumeFitScore === 'number' ? parsed.resumeFitScore : overall,
-      agent: 'Ava · gpt-6-luna (ExperientialLabs AI)',
+      agent: 'Ava · Google Gemini 2.5 Flash',
       integrity: {
         faceViolations: options.integrity.faceViolations || 0,
         singlePersonOk: options.integrity.singlePersonOk !== false,
@@ -574,13 +579,13 @@ Return ONLY valid JSON matching this schema:
       },
     }
   } catch (err) {
-    console.warn('[scoreWithLunaDirect] Error:', err)
+    console.warn('[scoreWithGeminiDirect] Error:', err)
     return null
   }
 }
 
 /**
- * Score full interview remotely or with direct gpt-6-luna.
+ * Score full interview remotely or with direct Google Gemini.
  */
 export async function scoreInterviewRemote(options: {
   sessionId: string | null
@@ -615,13 +620,13 @@ export async function scoreInterviewRemote(options: {
       }
     }
   } catch {
-    // continue to Luna / local
+    // continue to Gemini / local
   }
 
-  // 2. Direct Luna scoring — dev only
+  // 2. Direct Gemini scoring — dev only
   if (clientLlmAllowed()) {
     try {
-      const scored = await scoreWithLunaDirect({ ...options, profile: agentProfile })
+      const scored = await scoreWithGeminiDirect({ ...options, profile: agentProfile })
       if (scored) return scored
     } catch (err) {
       console.warn('[scoreInterviewRemote] Direct score error, falling back to local score:', err)

@@ -283,45 +283,47 @@ export function generateLocalQuestions(ctx, role, level) {
  */
 /**
  * Dedicated LLM API caller supporting Google Gemini 2.5 Flash as primary,
- * with automatic fallback to OpenAI Luna (gpt-6-luna) and other models.
+ * with automatic fallback to Gemini 1.5 Flash and other models.
  */
 export async function callLlmApi({ system, user, temperature = 0.3 }) {
   const apiKey =
-    process.env.EXPERIENTIALLABS_API_KEY ||
+    process.env.GEMINI_API_KEY ||
     process.env.OPENAI_API_KEY ||
     process.env.OPENROUTER_API_KEY ||
     process.env.LLM_API_KEY
   if (!apiKey) return null
 
-  const isExperientialLabs =
-    apiKey.startsWith('xpl_') ||
-    process.env.OPENAI_BASE_URL?.includes('experientiallabs')
+  const isGemini =
+    Boolean(process.env.GEMINI_API_KEY) ||
+    apiKey.startsWith('AIza') ||
+    process.env.OPENAI_BASE_URL?.includes('generativelanguage.googleapis.com')
 
   const base = (
     process.env.OPENAI_BASE_URL ||
-    (isExperientialLabs ? 'https://api.experientiallabs.ai/v1' : 'https://api.openai.com/v1')
+    (isGemini
+      ? 'https://generativelanguage.googleapis.com/v1beta/openai'
+      : 'https://api.openai.com/v1')
   ).replace(/\/$/, '')
 
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${apiKey}`,
   }
-  if (!isExperientialLabs) {
+  if (isGemini) {
+    headers['x-goog-api-key'] = apiKey
+  } else {
     headers['HTTP-Referer'] = 'http://localhost:5173'
     headers['X-Title'] = 'HIRERIGHTTT'
   }
 
-  // Model cascade: 1. Gemini gemini-2.5-flash (Primary) -> 2. OpenAI Luna gpt-6-luna (Fallback)
-  const primaryModel = process.env.PRIMARY_MODEL || 'gemini-2.5-flash'
-  const fallbackModel = process.env.FALLBACK_MODEL || (isExperientialLabs ? 'gpt-6-luna' : 'gpt-4o-mini')
+  // Model cascade: 1. Gemini gemini-2.5-flash (Primary) -> 2. Gemini gemini-1.5-flash (Fallback)
+  const primaryModel = process.env.PRIMARY_MODEL || process.env.GEMINI_MODEL || (isGemini ? 'gemini-2.5-flash' : 'gpt-4o-mini')
+  const fallbackModel = process.env.FALLBACK_MODEL || (isGemini ? 'gemini-1.5-flash' : 'gpt-4o-mini')
 
   const candidateModels = [
-    { name: primaryModel, label: 'Google Gemini (gemini-2.5-flash)' },
-    { name: fallbackModel, label: 'OpenAI Luna (gpt-6-luna)' },
+    { name: primaryModel, label: isGemini ? 'Google Gemini 2.5 Flash' : primaryModel },
+    { name: fallbackModel, label: isGemini ? 'Google Gemini 1.5 Flash' : fallbackModel },
   ]
-  if (fallbackModel !== 'gpt-6-luna' && isExperientialLabs) {
-    candidateModels.push({ name: 'gpt-6-luna', label: 'OpenAI Luna (gpt-6-luna)' })
-  }
 
   for (let i = 0; i < candidateModels.length; i++) {
     const { name: currentModel, label } = candidateModels[i]
@@ -1163,7 +1165,7 @@ export async function scoreInterviewSession(input) {
 
 export function llmConfigured() {
   return Boolean(
-    process.env.EXPERIENTIALLABS_API_KEY ||
+    process.env.GEMINI_API_KEY ||
       process.env.OPENROUTER_API_KEY ||
       process.env.OPENAI_API_KEY ||
       process.env.LLM_API_KEY,
@@ -1171,7 +1173,7 @@ export function llmConfigured() {
 }
 
 /**
- * High-accuracy resume parsing using ChatGPT 6.1 Luna / LLM
+ * High-accuracy resume parsing using Google Gemini / LLM
  * @param {string} resumeText
  */
 export async function parseResumeWithAI(resumeText) {

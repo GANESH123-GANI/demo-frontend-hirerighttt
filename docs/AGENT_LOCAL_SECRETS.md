@@ -2,7 +2,7 @@
 
 **Internal team handoff only.** This file exists so another developer or coding agent can clone the repo and run the full stack without chasing the team lead for `.env` values.
 
-> **Security:** These are live credentials. Keep the GitHub repo **private**. If this repo was ever public, rotate Supabase DB password, JWT secret, ExperientialLabs key, and `SESSION_SECRET` in Supabase / provider dashboards, then update this file.
+> **Security:** These are live credentials. Keep the GitHub repo **private**. If this repo was ever public, rotate Supabase DB password, JWT secret, Gemini API key, and `SESSION_SECRET` in Supabase / provider dashboards, then update this file.
 
 ## Quick setup
 
@@ -40,16 +40,16 @@ Copy everything below into `.env` at the repository root:
 VITE_API_URL=http://localhost:8787
 PORT=8787
 
-# ExperientialLabs AI Configuration (gpt-6-luna)
-OPENAI_API_KEY=xpl_d3e0caa9caf99c819e60a7e5b20407f3865074f9
-OPENAI_BASE_URL=https://api.experientiallabs.ai/v1
-OPENAI_MODEL=gpt-6-luna
-EXPERIENTIALLABS_API_KEY=xpl_d3e0caa9caf99c819e60a7e5b20407f3865074f9
+# Google Gemini AI Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+PRIMARY_MODEL=gemini-2.5-flash
+FALLBACK_MODEL=gemini-1.5-flash
+OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
 
 # Vite Client Environment (also mirrored in frontend/.env for dev)
-VITE_EXPERIENTIALLABS_API_KEY=xpl_d3e0caa9caf99c819e60a7e5b20407f3865074f9
-VITE_EXPERIENTIALLABS_BASE_URL=https://api.experientiallabs.ai/v1
-VITE_EXPERIENTIALLABS_MODEL=gpt-6-luna
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+VITE_PRIMARY_MODEL=gemini-2.5-flash
+VITE_FALLBACK_MODEL=gemini-1.5-flash
 
 # ─── Supabase (Auth + Postgres + sync) ───
 VITE_AUTH_PROVIDER=supabase
@@ -73,16 +73,16 @@ Copy into `frontend/.env`:
 VITE_API_URL=http://localhost:8787
 PORT=8787
 
-# ExperientialLabs AI Configuration (gpt-6-luna)
-OPENAI_API_KEY=xpl_d3e0caa9caf99c819e60a7e5b20407f3865074f9
-OPENAI_BASE_URL=https://api.experientiallabs.ai/v1
-OPENAI_MODEL=gpt-6-luna
-EXPERIENTIALLABS_API_KEY=xpl_d3e0caa9caf99c819e60a7e5b20407f3865074f9
+# Google Gemini AI Configuration
+GEMINI_API_KEY=your_gemini_api_key_here
+PRIMARY_MODEL=gemini-2.5-flash
+FALLBACK_MODEL=gemini-1.5-flash
+OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
 
 # Vite Client Environment
-VITE_EXPERIENTIALLABS_API_KEY=xpl_d3e0caa9caf99c819e60a7e5b20407f3865074f9
-VITE_EXPERIENTIALLABS_BASE_URL=https://api.experientiallabs.ai/v1
-VITE_EXPERIENTIALLABS_MODEL=gpt-6-luna
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+VITE_PRIMARY_MODEL=gemini-2.5-flash
+VITE_FALLBACK_MODEL=gemini-1.5-flash
 
 # Supabase (client)
 VITE_AUTH_PROVIDER=supabase
@@ -96,7 +96,7 @@ When `VITE_AUTH_PROVIDER=local` or demo allowed: `demo@hireright.com` / `passwor
 
 ## Production notes
 
-- Do **not** bake `VITE_EXPERIENTIALLABS_*` into production Docker frontend builds; LLM calls go through Node only.
+- Do **not** bake `VITE_GEMINI_*` into production Docker frontend builds; LLM calls go through Node only.
 - Production env template: `.env.production.example` — fill from the same Supabase project; use pooler URI + `sslmode=require` when deploying.
 
 ## What changed recently (for continuing agents)

@@ -47,13 +47,13 @@ export function assertProductionConfig() {
     errors.push('Set CORS_ORIGINS to your exact frontend URL(s) — no wildcards in production.')
   }
   const hasLlm =
-    process.env.EXPERIENTIALLABS_API_KEY ||
+    process.env.GEMINI_API_KEY ||
     process.env.OPENAI_API_KEY ||
     process.env.OPENROUTER_API_KEY ||
     process.env.LLM_API_KEY
   if (!hasLlm) {
     errors.push(
-      'EXPERIENTIALLABS_API_KEY (or OPENAI_API_KEY / OPENROUTER_API_KEY) is required in production.',
+      'GEMINI_API_KEY (or OPENAI_API_KEY / OPENROUTER_API_KEY) is required in production.',
     )
   }
 

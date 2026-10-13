@@ -11,7 +11,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/ai-proxy': {
-        target: 'https://api.experientiallabs.ai/v1',
+        target: 'https://generativelanguage.googleapis.com/v1beta/openai',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ai-proxy/, ''),
         secure: false,

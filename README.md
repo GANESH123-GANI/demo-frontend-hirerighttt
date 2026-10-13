@@ -49,16 +49,16 @@ Private apply links work without a prior account: submitting the form creates a 
 | **Supabase Auth** | `VITE_AUTH_PROVIDER=supabase` + URL, anon key, **Legacy JWT Secret** on API |
 | **SESSION_SECRET** | 32+ random chars — API session fallback |
 | **CORS_ORIGINS** | Exact live frontend URL(s) — no `*` |
-| **EXPERIENTIALLABS_API_KEY** | **Server only** — adaptive interview, resume parse, scorecard |
+| **GEMINI_API_KEY** | **Server only** — adaptive interview, resume parse, scorecard |
 | **HTTPS** | TLS at Cloudflare, load balancer, or host nginx |
 
-Production builds **never** embed LLM keys in the browser (`VITE_EXPERIENTIALLABS_*` is dev-only unless `VITE_ALLOW_CLIENT_LLM=true`).
+Production builds **never** embed LLM keys in the browser (`VITE_GEMINI_*` is dev-only unless `VITE_ALLOW_CLIENT_LLM=true`).
 
 ### Docker — Supabase (recommended)
 
 ```bash
 cp .env.production.example .env
-# Fill DATABASE_URL (pooler URI), SUPABASE_*, SESSION_SECRET, CORS_ORIGINS, EXPERIENTIALLABS_API_KEY
+# Fill DATABASE_URL (pooler URI), SUPABASE_*, SESSION_SECRET, CORS_ORIGINS, GEMINI_API_KEY
 
 docker compose -f docker-compose.supabase.prod.yml up -d --build
 ```

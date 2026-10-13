@@ -29,8 +29,8 @@ This guide walks you through deploying **HireRight** with zero downtime:
 3. Click **New +** → **Blueprint**.
 4. Connect your GitHub repository.
 5. Render will automatically detect [`render.yaml`](../render.yaml) and configure the `hireright-backend` service.
-6. Under **Environment Variables**, provide your AI key if you have one:
-   - `EXPERIENTIALLABS_API_KEY` (or `OPENROUTER_API_KEY` / `OPENAI_API_KEY`)
+3. Under **Environment Variables**, provide your AI key if you have one:
+   - `GEMINI_API_KEY` (or `OPENROUTER_API_KEY` / `OPENAI_API_KEY`)
 7. Click **Apply**. Render will install dependencies and start `node index.mjs`.
 8. Once deployed, note down your Render service URL:  
    👉 `https://hireright-backend.onrender.com`
@@ -59,7 +59,7 @@ If you prefer creating the service manually:
    | `SESSION_SECRET` | *(Click generate 32+ chars)* | Session cryptography |
    | `ALLOW_DEMO_ACCOUNTS` | `true` | Allows test demo accounts |
    | `SIGNUP_ENABLED` | `true` | Allows user registrations |
-   | `EXPERIENTIALLABS_API_KEY` | `your_key_here` | LLM interview evaluations |
+   | `GEMINI_API_KEY` | `your_key_here` | LLM interview evaluations |
 5. Click **Create Web Service**.
 6. Verify deployment by visiting `https://your-service.onrender.com/api/health`. You should see `{"ok":true,"service":"hireright-api"}`.
 
@@ -79,7 +79,7 @@ If you prefer creating the service manually:
    | Key | Value | Description |
    |---|---|---|
    | `VITE_API_URL` | `https://your-backend.onrender.com` | Your deployed Render backend URL |
-   | `VITE_EXPERIENTIALLABS_API_KEY` | *(optional)* | Client-side Ava streaming if desired |
+   | `VITE_GEMINI_API_KEY` | *(optional)* | Client-side Ava streaming if desired |
 6. Click **Deploy**.
 7. Vercel will run `tsc -b && vite build` and deploy in ~30 seconds.
 8. Your production URL will be live at `https://hireright-xxx.vercel.app`!

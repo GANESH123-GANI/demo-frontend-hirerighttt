@@ -55,7 +55,7 @@ cp .env.production.example .env   # for Docker prod only
 - `SUPABASE_URL`, `SUPABASE_JWT_SECRET` (**Legacy JWT Secret** from Supabase → Settings → API)
 - `DATABASE_URL` (Postgres URI; URL-encode password; prefer pooler + `sslmode=require` in prod)
 - `SESSION_SECRET` (32+ chars)
-- `EXPERIENTIALLABS_API_KEY` (server only — interview + resume + score refine)
+- `GEMINI_API_KEY` (server only — interview + resume + score refine)
 - `CORS_ORIGINS` (prod)
 
 **`frontend/.env`** — mirror `VITE_*` Supabase vars + `VITE_API_URL` if API is not same-origin.
@@ -77,7 +77,7 @@ npm run dev:all
 ```
 
 - App: http://localhost:5173  
-- API: http://localhost:8787/api/health (check `llm: true` when `EXPERIENTIALLABS_API_KEY` is set)
+- API: http://localhost:8787/api/health (check `llm: true` when `GEMINI_API_KEY` is set)
 
 Demo (no Supabase): `demo@hireright.com` / `password123` — disabled in prod when `ALLOW_DEMO_ACCOUNTS=false`.
 
@@ -127,7 +127,7 @@ npm run prod:supabase
 
 - `backend/node/config.mjs` — `assertProductionConfig()` on boot.
 - Frontend Docker build: repo root context, `deploy/nginx.conf`.
-- Do **not** pass `VITE_EXPERIENTIALLABS_*` into production web build.
+- Do **not** pass `VITE_GEMINI_*` into production web build.
 
 CI: `.github/workflows/ci.yml`.
 

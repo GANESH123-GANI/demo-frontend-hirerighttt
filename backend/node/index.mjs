@@ -372,7 +372,7 @@ const server = createServer(async (req, res) => {
 
     if (req.method === 'GET' && path === '/api/llm-status') {
       const apiKey =
-        process.env.EXPERIENTIALLABS_API_KEY ||
+        process.env.GEMINI_API_KEY ||
         process.env.OPENAI_API_KEY ||
         process.env.OPENROUTER_API_KEY ||
         process.env.LLM_API_KEY
@@ -385,29 +385,34 @@ const server = createServer(async (req, res) => {
         })
       }
 
-      const isExperientialLabs =
-        apiKey.startsWith('xpl_') ||
-        process.env.OPENAI_BASE_URL?.includes('experientiallabs')
+      const isGemini =
+        Boolean(process.env.GEMINI_API_KEY) ||
+        apiKey.startsWith('AIza') ||
+        process.env.OPENAI_BASE_URL?.includes('generativelanguage.googleapis.com')
 
       const base = (
         process.env.OPENAI_BASE_URL ||
-        (isExperientialLabs ? 'https://api.experientiallabs.ai/v1' : 'https://api.openai.com/v1')
+        (isGemini
+          ? 'https://generativelanguage.googleapis.com/v1beta/openai'
+          : 'https://api.openai.com/v1')
       ).replace(/\/$/, '')
 
       const model =
+        process.env.GEMINI_MODEL ||
+        process.env.PRIMARY_MODEL ||
         process.env.OPENAI_MODEL ||
-        process.env.EXPERIENTIALLABS_MODEL ||
-        process.env.OPENROUTER_MODEL ||
-        (isExperientialLabs ? 'gpt-6-luna' : 'gpt-4o-mini')
+        (isGemini ? 'gemini-2.5-flash' : 'gpt-4o-mini')
 
-      const providerName = isExperientialLabs ? 'ExperientialLabs AI' : 'OpenRouter AI'
+      const providerName = isGemini ? 'Google Gemini AI' : 'OpenAI / OpenRouter AI'
 
       try {
         const pingHeaders = {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         }
-        if (!isExperientialLabs) {
+        if (isGemini) {
+          pingHeaders['x-goog-api-key'] = apiKey
+        } else {
           pingHeaders['HTTP-Referer'] = 'http://localhost:5173'
           pingHeaders['X-Title'] = 'HIRERIGHTTT'
         }
@@ -770,7 +775,7 @@ const server = createServer(async (req, res) => {
         try {
           const parsed = await parseResumeWithAI(text)
           if (parsed) {
-            return json(res, 200, { ok: true, source: 'gpt-6-luna', extract: parsed })
+            return json(res, 200, { ok: true, source: 'gemini-2.5-flash', extract: parsed })
           }
         } catch (err) {
           console.warn('Backend fallback resume parse error:', err)
@@ -1026,7 +1031,7 @@ await bootstrapDb()
 server.listen(PORT, () => {
   console.log(`HIRERIGHT API v2 [${config.environment}] on http://localhost:${PORT}`)
   console.log(`Storage: ${config.databaseUrl ? 'PostgreSQL' : 'local db.json'}`)
-  console.log(`Interview agent: ${llmConfigured() ? 'LLM enabled' : 'local adaptive agent (set EXPERIENTIALLABS_API_KEY)'}`)
+  console.log(`Interview agent: ${llmConfigured() ? 'LLM enabled (Gemini)' : 'local adaptive agent (set GEMINI_API_KEY)'}`)
   console.log(`Demo accounts: ${config.allowDemoAccounts ? 'enabled' : 'disabled'}`)
 })
 server.on('error', (err) => {
