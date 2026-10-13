@@ -11,6 +11,7 @@ import {
   emptyDb,
 } from './db/store.mjs'
 import { execFile } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { writeFile, unlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, extname } from 'node:path'
@@ -28,7 +29,11 @@ import {
 
 assertProductionConfig()
 
-const PADDLE_SCRIPT_PATH = fileURLToPath(new URL('../python/paddle_resume_parser.py', import.meta.url))
+const PADDLE_SCRIPT_PATH = [
+  new URL('./python/paddle_resume_parser.py', import.meta.url),
+  new URL('../python/paddle_resume_parser.py', import.meta.url),
+  new URL('./paddle_resume_parser.py', import.meta.url),
+].map((u) => fileURLToPath(u)).find((p) => existsSync(p)) || fileURLToPath(new URL('../python/paddle_resume_parser.py', import.meta.url))
 
 async function runPaddleOcrParser(buffer, originalFileName = 'resume.pdf') {
   const ext = extname(originalFileName) || '.pdf'
