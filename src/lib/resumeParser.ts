@@ -904,13 +904,15 @@ function formatAiExtract(parsed: Record<string, unknown>, rawText: string): Resu
 }
 
 /**
- * High-accuracy AI Resume Parser powered by ChatGPT 6.1 Luna
+ * High-accuracy AI Resume Parser powered by Google Gemini
  */
 export async function parseResumeWithAI(text: string): Promise<ResumeExtract | null> {
-  const apiKey = clientLlmAllowed() ? import.meta.env.VITE_EXPERIENTIALLABS_API_KEY || '' : ''
+  const apiKey = clientLlmAllowed()
+    ? import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_OPENAI_API_KEY || ''
+    : ''
   const isBrowser = typeof window !== 'undefined'
 
-  const prompt = `You are an expert HR AI Resume Parser for HireRight. Extract structured profile information from this resume text into strictly valid JSON only.
+  const prompt = `You are an expert HR AI Resume Parser for HireRight powered by Google Gemini. Extract structured profile information from this resume text into strictly valid JSON only.
 
 STRICT ANTI-HALLUCINATION RULES:
 1. ONLY extract information that is explicitly stated in the resume text below.
@@ -991,9 +993,10 @@ ${text.slice(0, 12000)}`
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
-          model: 'gpt-6-luna',
+          model: 'gemini-2.5-flash',
           messages: [
             {
               role: 'system',
@@ -1015,22 +1018,27 @@ ${text.slice(0, 12000)}`
         }
       }
     } catch (err) {
-      console.warn('[ResumeParser] Direct /ai-proxy ChatGPT 6.1 Luna error, trying backend route:', err)
+      console.warn('[ResumeParser] Direct /ai-proxy Google Gemini error, trying backend route:', err)
     }
   }
 
-  // 3. Direct fetch to ExperientialLabs URL (local dev only)
+  // 3. Direct fetch to Gemini URL (local dev only)
   if (apiKey) {
     try {
-      const directUrl = (import.meta.env.VITE_OPENAI_BASE_URL || 'https://api.experientiallabs.ai/v1').replace(/\/$/, '')
+      const directUrl = (
+        import.meta.env.VITE_GEMINI_BASE_URL ||
+        import.meta.env.VITE_OPENAI_BASE_URL ||
+        'https://generativelanguage.googleapis.com/v1beta/openai'
+      ).replace(/\/$/, '')
       const res = await fetch(`${directUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
-          model: 'gpt-6-luna',
+          model: 'gemini-2.5-flash',
           messages: [
             {
               role: 'system',
