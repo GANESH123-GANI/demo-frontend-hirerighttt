@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { SiteNav } from '../components/SiteNav'
 import { SiteFooter } from '../components/SiteFooter'
@@ -8,6 +8,7 @@ import {
   getEmployerApplicants,
   getEmployerJobs,
   getUser,
+  saveEmployerApplicant,
   saveEmployerJob,
   updateEmployerApplicantStatus,
   type EmployerApplicant,
@@ -16,55 +17,166 @@ import {
 import { HrIcon } from '../components/HrIcon'
 import styles from './EmployerDashboard.module.css'
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
 export function EmployerDashboard() {
   const user = getUser()
-  const [jobs, setJobs] = useState<EmployerJob[]>(() =>
-    getEmployerJobs(user?.email),
-  )
-  const [applicants, setApplicants] = useState<EmployerApplicant[]>(() => {
-    const mine = getEmployerJobs(user?.email).map((j) => j.id)
-    return getEmployerApplicants().filter((a) => mine.includes(a.jobId))
-  })
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
+  const [jobs, setJobs] = useState<EmployerJob[]>(() => getEmployerJobs(user?.email))
+  const [applicants, setApplicants] = useState<EmployerApplicant[]>(() => getEmployerApplicants())
 
-  // Modal State
-  const [showCreateModal, setShowCreateModal] = useState(false)
+  // Filters State
+  const [searchFilter, setSearchFilter] = useState('')
+  const [roleFilter, setRoleFilter] = useState('')
+  const [jobFilter, setJobFilter] = useState('')
+  const [expFilter, setExpFilter] = useState('')
+  const [scoreFilter, setScoreFilter] = useState('')
+  const [integrityFilter, setIntegrityFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+
+  // Modals
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showCreateJobModal, setShowCreateJobModal] = useState(false)
   const [selectedApplicant, setSelectedApplicant] = useState<EmployerApplicant | null>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
-  // Form State for New Job
-  const [title, setTitle] = useState('')
-  const [roleTrack, setRoleTrack] = useState('Frontend Developer')
-  const [experienceLevel, setExperienceLevel] = useState('3-5 years')
-  const [location, setLocation] = useState('Remote / Hybrid')
-  const [jobDescription, setJobDescription] = useState('')
-  const [skillsStr, setSkillsStr] = useState('React, TypeScript, Redux, Node.js')
+  // New Candidate Form State
+  const [candName, setCandName] = useState('')
+  const [candEmail, setCandEmail] = useState('')
+  const [candPhone, setCandPhone] = useState('')
+  const [candRole, setCandRole] = useState('Frontend Developer')
+  const [candTargetJob, setCandTargetJob] = useState('Senior Frontend Developer')
+  const [candExp, setCandExp] = useState('3 years')
+  const [candScore, setCandScore] = useState(85)
+  const [candStatus, setCandStatus] = useState<EmployerApplicant['status']>('New')
+
+  // New Job Form State
+  const [newJobTitle, setNewJobTitle] = useState('')
+  const [newJobRoleTrack, setNewJobRoleTrack] = useState('Frontend Developer')
+  const [newJobExp, setNewJobExp] = useState('3-5 years')
+  const [newJobLocation, setNewJobLocation] = useState('Hyderabad / Remote')
+  const [newJobDescription, setNewJobDescription] = useState('')
+
+  function handleClearFilters() {
+    setSearchFilter('')
+    setRoleFilter('')
+    setJobFilter('')
+    setExpFilter('')
+    setScoreFilter('')
+    setIntegrityFilter('')
+    setStatusFilter('')
+  }
+
+  const filteredApplicants = useMemo(() => {
+    return applicants.filter((app) => {
+      // Search: name, email, or phone
+      if (searchFilter.trim()) {
+        const q = searchFilter.trim().toLowerCase()
+        const matchesName = app.candidateName.toLowerCase().includes(q)
+        const matchesEmail = app.candidateEmail.toLowerCase().includes(q)
+        const matchesPhone = app.candidatePhone.toLowerCase().includes(q)
+        if (!matchesName && !matchesEmail && !matchesPhone) return false
+      }
+
+      // Role text search
+      if (roleFilter.trim()) {
+        const q = roleFilter.trim().toLowerCase()
+        if (!app.role?.toLowerCase().includes(q)) return false
+      }
+
+      // Target Job text search
+      if (jobFilter.trim()) {
+        const q = jobFilter.trim().toLowerCase()
+        const matchesJob = app.jobTitle.toLowerCase().includes(q)
+        const matchesCompany = app.company.toLowerCase().includes(q)
+        if (!matchesJob && !matchesCompany) return false
+      }
+
+      // Experience text search
+      if (expFilter.trim()) {
+        const q = expFilter.trim().toLowerCase()
+        if (!app.experienceYears.toLowerCase().includes(q)) return false
+      }
+
+      // Score text search
+      if (scoreFilter.trim()) {
+        const q = scoreFilter.trim().toLowerCase()
+        const score = String(app.aiScore ?? app.interviewResult?.overall ?? '')
+        if (!score.includes(q) && !`${score}%`.includes(q)) return false
+      }
+
+      // Integrity text search
+      if (integrityFilter.trim()) {
+        const q = integrityFilter.trim().toLowerCase()
+        const integ = app.integrityStatus ?? (app.interviewResult?.integrity?.faceViolations ? 'pending' : 'verified')
+        const label = integ === 'verified' ? 'verified candidate' : integ === 'pending' ? 'verification pending' : 'not verified'
+        if (!label.includes(q) && !integ.includes(q)) return false
+      }
+
+      // Status text search
+      if (statusFilter.trim()) {
+        const q = statusFilter.trim().toLowerCase()
+        if (!app.status.toLowerCase().includes(q)) return false
+      }
+
+      return true
+    })
+  }, [applicants, searchFilter, roleFilter, jobFilter, expFilter, scoreFilter, integrityFilter, statusFilter])
+
+  function handleStatusChange(id: string, newStatus: EmployerApplicant['status']) {
+    updateEmployerApplicantStatus(id, newStatus)
+    setApplicants((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a)),
+    )
+  }
+
+  function handleAddCandidate(e: React.FormEvent) {
+    e.preventDefault()
+    if (!candName.trim() || !candEmail.trim()) return
+
+    const created = saveEmployerApplicant({
+      jobId: jobs[0]?.id || 'job-demo-1',
+      jobTitle: candTargetJob,
+      company: user?.companyName || 'TechCitta Solutions',
+      candidateName: candName.trim(),
+      candidateEmail: candEmail.trim(),
+      candidatePhone: candPhone.trim() || '+91 90000 00000',
+      role: candRole,
+      experienceYears: candExp,
+      resumeName: `${candName.trim().replace(/\s+/g, '_')}_Resume.pdf`,
+      aiScore: candScore,
+      integrityStatus: 'verified',
+    })
+
+    setApplicants([created, ...applicants])
+    setShowAddModal(false)
+    setCandName('')
+    setCandEmail('')
+    setCandPhone('')
+  }
 
   function handleCreateJob(e: React.FormEvent) {
     e.preventDefault()
-    if (!title.trim() || !jobDescription.trim()) return
+    if (!newJobTitle.trim() || !newJobDescription.trim()) return
 
-    const skills = skillsStr
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-
-    const newJob = saveEmployerJob({
-      title: title.trim(),
+    const created = saveEmployerJob({
+      title: newJobTitle.trim(),
       company: user?.companyName || 'TechCitta Solutions',
-      roleTrack,
-      experienceLevel,
-      location: location.trim(),
-      jobDescription: jobDescription.trim(),
-      requiredSkills: skills,
+      roleTrack: newJobRoleTrack,
+      experienceLevel: newJobExp,
+      location: newJobLocation.trim(),
+      jobDescription: newJobDescription.trim(),
+      requiredSkills: ['React', 'TypeScript', 'Node.js'],
       createdByEmail: user?.email || 'employer@hireright.com',
     })
 
-    setJobs([newJob, ...jobs])
-    setApplicants(getEmployerApplicants(newJob.id).concat(applicants))
-    setShowCreateModal(false)
-    setTitle('')
-    setJobDescription('')
+    setJobs([created, ...jobs])
+    setShowCreateJobModal(false)
+    setNewJobTitle('')
+    setNewJobDescription('')
   }
 
   function handleDeleteJob(id: string) {
@@ -83,326 +195,530 @@ export function EmployerDashboard() {
     window.setTimeout(() => setCopiedCode(null), 2500)
   }
 
-  function handleStatusChange(id: string, newStatus: EmployerApplicant['status']) {
-    updateEmployerApplicantStatus(id, newStatus)
-    setApplicants(
-      applicants.map((a) => (a.id === id ? { ...a, status: newStatus } : a)),
-    )
-  }
-
-  const filteredApplicants = selectedJobId
-    ? applicants.filter((a) => a.jobId === selectedJobId)
-    : applicants
-
   return (
     <div className={styles.page}>
+      <SiteNav />
+
       <div className={styles.shell}>
-        <SiteNav />
-
-        {/* Hero Section */}
+        {/* Top Hero Section */}
         <motion.div
-          className={styles.hero}
-          initial={{ opacity: 0, y: 16 }}
+          className={styles.heroCard}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          <div className={styles.heroContent}>
-            <span className={styles.heroBadge}>
-              <HrIcon name="building" size={16} /> EMPLOYER & RECRUITER PORTAL ·{' '}
-              {user?.companyName || 'TechCitta Solutions'}
-            </span>
-            <h1>Employer AI Hiring Studio</h1>
-            <p>
-              Create exclusive private job openings, generate unique assessment links, and inspect candidates AI interview scores & video assessments.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            className={styles.createBtn}
-            onClick={() => setShowCreateModal(true)}
-          >
-            <HrIcon name="plus" size={18} /> Create Private Job Opening
-          </button>
+          <span className={styles.heroBadge}>
+            <HrIcon name="building" size={13} /> EMPLOYER & RECRUITER PORTAL ·{' '}
+            {user?.companyName || 'TECHCITTA SOLUTIONS'}
+          </span>
+          <h1 className={styles.heroTitle}>Employer AI Hiring Studio</h1>
+          <p className={styles.heroDesc}>
+            Create exclusive private job openings, generate unique assessment links, and
+            inspect candidates AI interview scores & video assessments.
+          </p>
         </motion.div>
 
-        {/* Stats Row */}
-        <div className={styles.statsRow}>
-          <div className={styles.statCard}>
-            <div className={styles.statLabel}>Active Openings</div>
-            <div className={styles.statVal}>{jobs.length}</div>
+        {/* IN BETWEEN: All-Column Search & Filter Row */}
+        <motion.div
+          className={styles.filterBarCard}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.04 }}
+        >
+          {/* Candidate Search (Name, Email, Phone) */}
+          <div className={styles.searchWrap}>
+            <span className={styles.searchIcon}>
+              <HrIcon name="search" size={15} />
+            </span>
+            <input
+              type="text"
+              className={styles.filterSearchInput}
+              placeholder="Search name, email or phone..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+            />
           </div>
-          <div className={styles.statCard}>
-            <div className={styles.statLabel}>Total Candidates</div>
-            <div className={styles.statVal}>{applicants.length}</div>
-          </div>
-          <div className={styles.statCard}>
-            <div className={styles.statLabel}>Shortlisted Candidates</div>
-            <div className={styles.statVal}>
-              {applicants.filter((a) => a.status === 'Shortlisted').length}
-            </div>
-          </div>
-          <div className={styles.statCard}>
-            <div className={styles.statLabel}>Avg AI Score</div>
-            <div className={styles.statVal}>
-              {applicants.length > 0
-                ? Math.round(
-                    applicants.reduce(
-                      (acc, a) => acc + (a.interviewResult?.overall || 0),
-                      0,
-                    ) / applicants.length,
-                  ) + '%'
-                : '—'}
-            </div>
-          </div>
-        </div>
 
-        {/* Active Openings Section */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <HrIcon name="briefcase" size={22} /> Active Private Job Openings
-            </h2>
-            {selectedJobId && (
+          {/* Role Search */}
+          <input
+            type="text"
+            className={styles.filterColInput}
+            placeholder="Search role..."
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+          />
+
+          {/* Target Job Search */}
+          <input
+            type="text"
+            className={styles.filterColInput}
+            placeholder="Search job..."
+            value={jobFilter}
+            onChange={(e) => setJobFilter(e.target.value)}
+          />
+
+          {/* Experience Search */}
+          <input
+            type="text"
+            className={styles.filterColInput}
+            placeholder="Search experience..."
+            value={expFilter}
+            onChange={(e) => setExpFilter(e.target.value)}
+          />
+
+          {/* AI Score Search */}
+          <input
+            type="text"
+            className={styles.filterColInput}
+            placeholder="Search score..."
+            value={scoreFilter}
+            onChange={(e) => setScoreFilter(e.target.value)}
+          />
+
+          {/* Integrity Search */}
+          <input
+            type="text"
+            className={styles.filterColInput}
+            placeholder="Search integrity..."
+            value={integrityFilter}
+            onChange={(e) => setIntegrityFilter(e.target.value)}
+          />
+
+          {/* Status Search */}
+          <input
+            type="text"
+            className={styles.filterColInput}
+            placeholder="Search status..."
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          />
+
+          {/* Clear Filters Button if any active */}
+          {(searchFilter || roleFilter || jobFilter || expFilter || scoreFilter || integrityFilter || statusFilter) && (
+            <button
+              type="button"
+              className={styles.filterClearBtn}
+              onClick={handleClearFilters}
+              title="Clear all filters"
+            >
+              <HrIcon name="close" size={13} /> Clear
+            </button>
+          )}
+        </motion.div>
+
+        {/* Candidates Section Card */}
+        <motion.div
+          className={styles.candidatesCard}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
+        >
+          <div className={styles.candidatesHeader}>
+            <div className={styles.titleGroup}>
+              <h2>Candidates</h2>
+              <div className={styles.countText}>
+                Showing {filteredApplicants.length} of {applicants.length} candidates
+              </div>
+            </div>
+
+            <div className={styles.headerActions}>
               <button
                 type="button"
-                className={styles.copyBtn}
-                onClick={() => setSelectedJobId(null)}
+                className={styles.clearFiltersBtn}
+                onClick={handleClearFilters}
               >
-                Showing filter. Clear filter <HrIcon name="close" size={14} />
+                Clear filters
               </button>
-            )}
+              <button
+                type="button"
+                className={styles.addCandidateBtn}
+                onClick={() => setShowAddModal(true)}
+              >
+                <HrIcon name="plus" size={14} /> Add candidate
+              </button>
+            </div>
           </div>
 
-          {jobs.length === 0 ? (
-            <div className={styles.emptyState}>
-              <h3>No job openings created yet</h3>
-              <p>Click "Create Private Job Opening" to generate your first link.</p>
-            </div>
-          ) : (
-            <div className={styles.jobsGrid}>
-              {jobs.map((job) => {
-                const count = applicants.filter((a) => a.jobId === job.id).length
-                const isCopied = copiedCode === job.shareableCode
-
-                return (
-                  <div key={job.id} className={styles.jobCard}>
-                    <div>
-                      <h3 className={styles.jobTitle}>{job.title}</h3>
-                      <div className={styles.jobMeta}>
-                        <span className={`${styles.badge} ${styles.badgePrimary}`}>
-                          {job.roleTrack}
-                        </span>
-                        <span className={styles.badge}>{job.experienceLevel}</span>
-                        <span className={styles.badge}>{job.location}</span>
-                      </div>
-
-                      <p className={styles.jobJdSnippet}>{job.jobDescription}</p>
-
-                      {/* Shareable Link Box */}
-                      <div className={styles.linkBox}>
-                        <div className={styles.linkUrl}>
-                          {`${window.location.origin}/apply/${job.shareableCode}`}
-                        </div>
-                        <button
-                          type="button"
-                          className={styles.copyBtn}
-                          onClick={() => handleCopyLink(job.shareableCode)}
-                        >
-                          {isCopied ? (
-                            <>
-                              <HrIcon name="check" size={16} /> Link Copied!
-                            </>
-                          ) : (
-                            <>
-                              <HrIcon name="clipboard" size={16} /> Copy Link
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className={styles.cardFooter}>
-                      <span className={styles.appCount}>
-                        <HrIcon name="users" size={16} /> {count} Applicant(s)
-                      </span>
-                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                        <button
-                          type="button"
-                          className={styles.viewBtn}
-                          onClick={() => setSelectedJobId(job.id)}
-                        >
-                          Filter Applicants
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.deleteBtn}
-                          onClick={() => handleDeleteJob(job.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Applicants Table Section */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <HrIcon name="users" size={22} /> Candidates & AI Interview Assessment Submissions
-            </h2>
-          </div>
-
-          <div className={styles.tableCard}>
-            {filteredApplicants.length === 0 ? (
-              <div className={styles.emptyState}>
-                <h3>No candidate interview submissions yet</h3>
-                <p>Share your job link with candidates to start receiving AI assessment reports.</p>
-              </div>
-            ) : (
-              <table className={styles.table}>
-                <thead>
+          {/* Candidates Table */}
+          <div className={styles.tableContainer}>
+            <table className={styles.candidatesTable}>
+              <thead>
+                <tr>
+                  <th style={{ width: '22%' }}>CANDIDATE ▲</th>
+                  <th style={{ width: '13%' }}>ROLE</th>
+                  <th style={{ width: '16%' }}>TARGET JOB</th>
+                  <th style={{ width: '9%' }}>EXPERIENCE</th>
+                  <th style={{ width: '14%' }}>AI SCORE & FIT</th>
+                  <th style={{ width: '12%' }}>INTEGRITY</th>
+                  <th style={{ width: '10%' }}>STATUS</th>
+                  <th style={{ width: '11%' }}>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredApplicants.length === 0 ? (
                   <tr>
-                    <th>Candidate</th>
-                    <th>Target Job</th>
-                    <th>Experience</th>
-                    <th>AI Score & Fit</th>
-                    <th>Integrity</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <td colSpan={8}>
+                      <div className={styles.emptyState}>
+                        <h3>No candidates found</h3>
+                        <p>Try clearing filters or search criteria.</p>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredApplicants.map((app) => {
-                    const score = app.interviewResult?.overall ?? 88
-                    const scoreClass =
+                ) : (
+                  filteredApplicants.map((cand) => {
+                    const initials = getInitials(cand.candidateName)
+                    const score = cand.aiScore ?? cand.interviewResult?.overall ?? 85
+                    const scoreStyle =
                       score >= 85
-                        ? styles.scoreHigh
+                        ? styles.scoreGreen
                         : score >= 70
-                          ? styles.scoreMed
-                          : styles.scoreLow
+                          ? styles.scorePurple
+                          : styles.scoreAmber
+
+                    const integ = cand.integrityStatus ?? (cand.interviewResult?.integrity?.faceViolations ? 'pending' : 'verified')
 
                     return (
-                      <tr key={app.id}>
+                      <tr key={cand.id}>
+                        {/* CANDIDATE */}
                         <td>
-                          <div className={styles.candidateName}>{app.candidateName}</div>
-                          <div className={styles.candidateContact}>
-                            {app.candidateEmail} · {app.candidatePhone}
+                          <div className={styles.candidateCell}>
+                            <div className={styles.avatar}>{initials}</div>
+                            <div>
+                              <div className={styles.candidateName}>{cand.candidateName}</div>
+                              <div className={styles.candidateContact}>
+                                {cand.candidateEmail} · {cand.candidatePhone}
+                              </div>
+                            </div>
                           </div>
                         </td>
+
+                        {/* ROLE */}
                         <td>
-                          <div style={{ fontWeight: 600 }}>{app.jobTitle}</div>
-                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                            {app.company}
-                          </div>
-                        </td>
-                        <td>{app.experienceYears}</td>
-                        <td>
-                          <span className={`${styles.scorePill} ${scoreClass}`}>
-                            <HrIcon name="flame" size={14} /> {score}% Overall Fit
+                          <span className={styles.roleTag}>
+                            {cand.role || 'Frontend Developer'}
                           </span>
                         </td>
+
+                        {/* TARGET JOB */}
                         <td>
-                          <span
-                            style={{
-                              fontSize: '0.8rem',
-                              fontWeight: 700,
-                              color: '#059669',
-                            }}
-                          >
-                            <HrIcon name="shield-check" size={14} /> Verified Candidate
+                          <div className={styles.targetJobTitle}>{cand.jobTitle}</div>
+                          <div className={styles.targetJobCompany}>{cand.company}</div>
+                        </td>
+
+                        {/* EXPERIENCE */}
+                        <td>
+                          <span className={styles.experienceText}>{cand.experienceYears}</span>
+                        </td>
+
+                        {/* AI SCORE & FIT */}
+                        <td>
+                          <span className={`${styles.scorePill} ${scoreStyle}`}>
+                            ✦ {score}% Overall Fit
                           </span>
                         </td>
+
+                        {/* INTEGRITY */}
+                        <td>
+                          {integ === 'verified' && (
+                            <span className={`${styles.integrityText} ${styles.integrityVerified}`}>
+                              <HrIcon name="shield-check" size={14} /> Verified Candidate
+                            </span>
+                          )}
+                          {integ === 'pending' && (
+                            <span className={`${styles.integrityText} ${styles.integrityPending}`}>
+                              <HrIcon name="shield-check" size={14} /> Verification pending
+                            </span>
+                          )}
+                          {integ === 'unverified' && (
+                            <span className={`${styles.integrityText} ${styles.integrityUnverified}`}>
+                              <HrIcon name="close" size={13} /> Not verified
+                            </span>
+                          )}
+                        </td>
+
+                        {/* STATUS */}
                         <td>
                           <select
-                            className={styles.statusSelect}
-                            value={app.status}
+                            className={styles.statusDropdown}
+                            value={cand.status}
                             onChange={(e) =>
                               handleStatusChange(
-                                app.id,
+                                cand.id,
                                 e.target.value as EmployerApplicant['status'],
                               )
                             }
                           >
                             <option value="New">New</option>
                             <option value="Shortlisted">Shortlisted</option>
-                            <option value="In Review">In Review</option>
+                            <option value="Interviewing">Interviewing</option>
                             <option value="Rejected">Rejected</option>
                           </select>
                         </td>
+
+                        {/* ACTIONS */}
                         <td>
                           <button
                             type="button"
-                            className={styles.viewBtn}
-                            onClick={() => setSelectedApplicant(app)}
+                            className={styles.inspectBtn}
+                            onClick={() => setSelectedApplicant(cand)}
                           >
                             Inspect AI Report →
                           </button>
                         </td>
                       </tr>
                     )
-                  })}
-                </tbody>
-              </table>
-            )}
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        {/* Private Job Openings Management Section */}
+        <div className={styles.jobsSection}>
+          <div className={styles.jobsHeader}>
+            <h3 className={styles.jobsTitle}>
+              <HrIcon name="briefcase" size={20} /> Active Job Openings & Shareable Assessment Links
+            </h3>
+            <button
+              type="button"
+              className={styles.createJobBtn}
+              onClick={() => setShowCreateJobModal(true)}
+            >
+              <HrIcon name="plus" size={14} /> Create New Job Opening
+            </button>
+          </div>
+
+          <div className={styles.jobsGrid}>
+            {jobs.map((job) => {
+              const count = applicants.filter((a) => a.jobId === job.id).length
+              const isCopied = copiedCode === job.shareableCode
+
+              return (
+                <div key={job.id} className={styles.jobCard}>
+                  <div>
+                    <h4 className={styles.jobCardTitle}>{job.title}</h4>
+                    <div className={styles.jobCardMeta}>
+                      <span className={styles.metaBadge}>{job.roleTrack}</span>
+                      <span className={styles.metaBadge}>{job.experienceLevel}</span>
+                      <span className={styles.metaBadge}>{job.location}</span>
+                    </div>
+
+                    <div className={styles.linkBox}>
+                      <span className={styles.linkUrl}>
+                        {`${window.location.origin}/apply/${job.shareableCode}`}
+                      </span>
+                      <button
+                        type="button"
+                        className={styles.copyBtn}
+                        onClick={() => handleCopyLink(job.shareableCode)}
+                      >
+                        {isCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.jobFooter}>
+                    <span>{count} Applicant(s)</span>
+                    <button
+                      type="button"
+                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
+                      onClick={() => handleDeleteJob(job.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        {/* Create Job Opening Modal */}
-        {showCreateModal && (
+        {/* Add Candidate Modal */}
+        {showAddModal && (
           <div className={styles.modalOverlay}>
             <div className={styles.modal}>
               <div className={styles.modalHeader}>
                 <h2>
-                  <HrIcon name="plus" size={20} /> Create Private Job Opening
+                  <HrIcon name="plus" size={18} /> Add New Candidate
                 </h2>
                 <button
                   type="button"
                   className={styles.closeBtn}
-                  onClick={() => setShowCreateModal(false)}
-                  aria-label="Close"
+                  onClick={() => setShowAddModal(false)}
                 >
-                  <HrIcon name="close" size={18} />
+                  <HrIcon name="close" size={16} />
+                </button>
+              </div>
+
+              <form onSubmit={handleAddCandidate}>
+                <div className={styles.formGroup}>
+                  <label>Candidate Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Vikram Sharma"
+                    value={candName}
+                    onChange={(e) => setCandName(e.target.value)}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className={styles.formGroup}>
+                    <label>Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="vikram@example.com"
+                      value={candEmail}
+                      onChange={(e) => setCandEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Phone Number</label>
+                    <input
+                      type="text"
+                      placeholder="+91 90000 00120"
+                      value={candPhone}
+                      onChange={(e) => setCandPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Target Job Opening</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Senior Frontend Developer"
+                    value={candTargetJob}
+                    onChange={(e) => setCandTargetJob(e.target.value)}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className={styles.formGroup}>
+                    <label>Role</label>
+                    <select
+                      value={candRole}
+                      onChange={(e) => setCandRole(e.target.value)}
+                    >
+                      <option value="Frontend Developer">Frontend Developer</option>
+                      <option value="UI/UX Designer">UI/UX Designer</option>
+                      <option value="QA Engineer">QA Engineer</option>
+                      <option value="DevOps Engineer">DevOps Engineer</option>
+                      <option value="Full Stack Developer">Full Stack Developer</option>
+                      <option value="Data Analyst">Data Analyst</option>
+                      <option value="Backend Developer">Backend Developer</option>
+                      <option value="Product Manager">Product Manager</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Experience</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 5 years"
+                      value={candExp}
+                      onChange={(e) => setCandExp(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className={styles.formGroup}>
+                    <label>AI Fit Score (%)</label>
+                    <input
+                      type="number"
+                      min={40}
+                      max={100}
+                      value={candScore}
+                      onChange={(e) => setCandScore(Number(e.target.value))}
+                    />
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>Initial Status</label>
+                    <select
+                      value={candStatus}
+                      onChange={(e) => setCandStatus(e.target.value as EmployerApplicant['status'])}
+                    >
+                      <option value="New">New</option>
+                      <option value="Shortlisted">Shortlisted</option>
+                      <option value="Interviewing">Interviewing</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.modalFooter}>
+                  <button
+                    type="button"
+                    className={styles.cancelBtn}
+                    onClick={() => setShowAddModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className={styles.submitBtn}>
+                    Save Candidate
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Create Job Opening Modal */}
+        {showCreateJobModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <div className={styles.modalHeader}>
+                <h2>
+                  <HrIcon name="plus" size={18} /> Create Private Job Opening
+                </h2>
+                <button
+                  type="button"
+                  className={styles.closeBtn}
+                  onClick={() => setShowCreateJobModal(false)}
+                >
+                  <HrIcon name="close" size={16} />
                 </button>
               </div>
 
               <form onSubmit={handleCreateJob}>
                 <div className={styles.formGroup}>
-                  <label>Job Opening Title</label>
+                  <label>Job Title</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Senior Frontend Developer"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={newJobTitle}
+                    onChange={(e) => setNewJobTitle(e.target.value)}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                   <div className={styles.formGroup}>
                     <label>Role Track</label>
                     <select
-                      value={roleTrack}
-                      onChange={(e) => setRoleTrack(e.target.value)}
+                      value={newJobRoleTrack}
+                      onChange={(e) => setNewJobRoleTrack(e.target.value)}
                     >
                       <option value="Frontend Developer">Frontend Developer</option>
                       <option value="Full Stack Engineer">Full Stack Engineer</option>
                       <option value="Backend Engineer">Backend Engineer</option>
-                      <option value="AI/ML Engineer">AI/ML Engineer</option>
-                      <option value="Product Analyst">Product Analyst</option>
+                      <option value="QA Engineer">QA Engineer</option>
                       <option value="DevOps Engineer">DevOps Engineer</option>
+                      <option value="Product Manager">Product Manager</option>
                     </select>
                   </div>
 
                   <div className={styles.formGroup}>
                     <label>Experience Level</label>
                     <select
-                      value={experienceLevel}
-                      onChange={(e) => setExperienceLevel(e.target.value)}
+                      value={newJobExp}
+                      onChange={(e) => setNewJobExp(e.target.value)}
                     >
                       <option value="0-2 years">0-2 years (Junior)</option>
                       <option value="3-5 years">3-5 years (Mid-Level)</option>
@@ -416,28 +732,18 @@ export function EmployerDashboard() {
                   <input
                     type="text"
                     placeholder="Hyderabad / Remote"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    value={newJobLocation}
+                    onChange={(e) => setNewJobLocation(e.target.value)}
                   />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>Custom Job Description (JD) for AI Interview</label>
+                  <label>Job Description</label>
                   <textarea
                     required
-                    placeholder="Paste the full job description, requirements, responsibilities, and technologies here. Ava's AI interview will generate questions tailored directly to this JD."
-                    value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
-                  />
-                </div>
-
-                <div className={styles.formGroup}>
-                  <label>Required Skills (comma separated)</label>
-                  <input
-                    type="text"
-                    placeholder="React, TypeScript, Redux, Node.js"
-                    value={skillsStr}
-                    onChange={(e) => setSkillsStr(e.target.value)}
+                    placeholder="Paste job description requirements and expectations..."
+                    value={newJobDescription}
+                    onChange={(e) => setNewJobDescription(e.target.value)}
                   />
                 </div>
 
@@ -445,11 +751,11 @@ export function EmployerDashboard() {
                   <button
                     type="button"
                     className={styles.cancelBtn}
-                    onClick={() => setShowCreateModal(false)}
+                    onClick={() => setShowCreateJobModal(false)}
                   >
                     Cancel
                   </button>
-                  <button type="submit" className={styles.createBtn}>
+                  <button type="submit" className={styles.submitBtn}>
                     Generate Shareable Job Link →
                   </button>
                 </div>
@@ -465,10 +771,9 @@ export function EmployerDashboard() {
               <div className={styles.modalHeader}>
                 <div>
                   <h2>
-                    <HrIcon name="document" size={20} /> {selectedApplicant.candidateName} — AI
-                    Assessment Report
+                    <HrIcon name="document" size={18} /> {selectedApplicant.candidateName} — AI Assessment Report
                   </h2>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>
+                  <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '4px' }}>
                     Applied for {selectedApplicant.jobTitle} ({selectedApplicant.company})
                   </div>
                 </div>
@@ -476,30 +781,27 @@ export function EmployerDashboard() {
                   type="button"
                   className={styles.closeBtn}
                   onClick={() => setSelectedApplicant(null)}
-                  aria-label="Close"
                 >
-                  <HrIcon name="close" size={18} />
+                  <HrIcon name="close" size={16} />
                 </button>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b' }}>CANDIDATE DETAILS</div>
-                  <div style={{ marginTop: '6px', fontWeight: 700 }}>{selectedApplicant.candidateName}</div>
-                  <div style={{ fontSize: '0.85rem', color: '#475569' }}>{selectedApplicant.candidateEmail}</div>
+                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>CANDIDATE DETAILS</div>
+                  <div style={{ marginTop: '6px', fontWeight: 700, fontSize: '1rem', color: '#0f172a' }}>{selectedApplicant.candidateName}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '2px' }}>{selectedApplicant.candidateEmail}</div>
                   <div style={{ fontSize: '0.85rem', color: '#475569' }}>Phone: {selectedApplicant.candidatePhone}</div>
                   <div style={{ fontSize: '0.85rem', color: '#475569' }}>Experience: {selectedApplicant.experienceYears}</div>
                 </div>
 
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b' }}>AI EVALUATION SCORE</div>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: '#2563eb', marginTop: '4px' }}>
-                    {selectedApplicant.interviewResult
-                      ? `${selectedApplicant.interviewResult.overall}%`
-                      : 'Pending'}
+                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>AI EVALUATION SCORE</div>
+                  <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#4f46e5', marginTop: '2px' }}>
+                    {selectedApplicant.aiScore ?? selectedApplicant.interviewResult?.overall ?? 85}%
                   </div>
-                  <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 700 }}>
-                    <HrIcon name="check" size={14} /> High Match Candidate
+                  <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <HrIcon name="check" size={14} /> Overall Fit Assessment Verified
                   </div>
                 </div>
               </div>
@@ -507,7 +809,7 @@ export function EmployerDashboard() {
               {selectedApplicant.resumeText && (
                 <div className={styles.formGroup}>
                   <label>Extracted Resume Summary</label>
-                  <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', fontSize: '0.88rem', color: '#334155', border: '1px solid #e2e8f0' }}>
+                  <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', fontSize: '0.85rem', color: '#334155', border: '1px solid #e2e8f0', lineHeight: 1.5 }}>
                     {selectedApplicant.resumeText}
                   </div>
                 </div>
@@ -515,117 +817,37 @@ export function EmployerDashboard() {
 
               {selectedApplicant.interviewResult && (
                 <div>
-                  <h4 style={{ margin: '18px 0 10px 0', color: '#0f172a' }}>Category Breakdown</h4>
+                  <h4 style={{ margin: '18px 0 10px 0', color: '#0f172a', fontSize: '0.95rem', fontWeight: 700 }}>Category Breakdown</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     {selectedApplicant.interviewResult.categories?.map((cat) => (
-                      <div key={cat.label} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '10px 14px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ fontWeight: 600, color: '#475569' }}>{cat.label}</span>
-                        <span style={{ fontWeight: 800, color: '#2563eb' }}>{cat.score}%</span>
+                      <div key={cat.label} style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '10px 14px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontWeight: 600, color: '#475569', fontSize: '0.85rem' }}>{cat.label}</span>
+                        <span style={{ fontWeight: 800, color: '#4f46e5', fontSize: '0.95rem' }}>{cat.score}%</span>
                       </div>
                     ))}
                   </div>
 
-                  <h4 style={{ margin: '18px 0 10px 0', color: '#0f172a' }}>Candidate Answer Transcripts & Scores</h4>
+                  <h4 style={{ margin: '20px 0 10px 0', color: '#0f172a', fontSize: '0.95rem', fontWeight: 700 }}>Candidate Answer Transcripts & Scores</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {selectedApplicant.interviewResult.answers?.map((ans, idx) => (
-                      <div key={idx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '14px', borderRadius: '12px' }}>
-                        <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px' }}>
+                      <div key={idx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '14px', borderRadius: '10px' }}>
+                        <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: '4px', fontSize: '0.88rem' }}>
                           Q{idx + 1}: {ans.question}
                         </div>
-                        <div style={{ fontSize: '0.88rem', color: '#334155', fontStyle: 'italic', marginBottom: '6px' }}>
+                        <div style={{ fontSize: '0.85rem', color: '#334155', fontStyle: 'italic', marginBottom: '6px' }}>
                           "{ans.answer}"
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b' }}>
-                          <span>Score: <strong>{ans.score}%</strong></span>
-                          <span>Words: <strong>{ans.wordCount}</strong></span>
-                          <span>Keywords: <strong>{ans.keywordsHit?.join(', ') || 'N/A'}</strong></span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#64748b' }}>
+                          <span>Score: <strong style={{ color: '#0f172a' }}>{ans.score}%</strong></span>
+                          <span>Words: <strong style={{ color: '#0f172a' }}>{ans.wordCount}</strong></span>
+                          <span>Keywords: <strong style={{ color: '#0f172a' }}>{ans.keywordsHit?.join(', ') || 'N/A'}</strong></span>
                         </div>
                       </div>
                     ))}
                   </div>
-                  {/* Real-time Proctoring & Misbehavior Event Logs */}
-                  <div style={{ marginTop: '24px' }}>
-                    <VideoProctorTimeline
-                      logs={selectedApplicant.interviewResult.integrity?.logs}
-                    />
 
-                    {selectedApplicant.interviewResult.integrity?.logs &&
-                    selectedApplicant.interviewResult.integrity.logs.length > 0 ? (
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '8px',
-                          maxHeight: '220px',
-                          overflowY: 'auto',
-                        }}
-                      >
-                        {selectedApplicant.interviewResult.integrity.logs.map((log) => {
-                          const bg =
-                            log.severity === 'ban'
-                              ? '#fef2f2'
-                              : log.severity === 'block'
-                                ? '#fffbeb'
-                                : '#f8fafc'
-                          const border =
-                            log.severity === 'ban'
-                              ? '#fca5a5'
-                              : log.severity === 'block'
-                                ? '#fde68a'
-                                : '#cbd5e1'
-                          const textColor =
-                            log.severity === 'ban'
-                              ? '#dc2626'
-                              : log.severity === 'block'
-                                ? '#b45309'
-                                : '#334155'
-                          return (
-                            <div
-                              key={log.id}
-                              style={{
-                                background: bg,
-                                border: `1px solid ${border}`,
-                                padding: '10px 14px',
-                                borderRadius: '10px',
-                                fontSize: '0.85rem',
-                              }}
-                            >
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  fontWeight: 700,
-                                  color: textColor,
-                                  marginBottom: '2px',
-                                }}
-                              >
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                                  <HrIcon name="calendar" size={14} />[{log.formattedTime}]{' '}
-                                  {log.eventType.replace(/_/g, ' ')}
-                                </span>
-                                {log.questionIndex && <span>Question #{log.questionIndex}</span>}
-                              </div>
-                              <div style={{ color: textColor }}>{log.message}</div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          background: '#ecfdf5',
-                          border: '1px solid #a7f3d0',
-                          padding: '12px 16px',
-                          borderRadius: '12px',
-                          fontSize: '0.85rem',
-                          color: '#047857',
-                          fontWeight: 700,
-                        }}
-                      >
-                        <HrIcon name="shield-check" size={16} /> Verified Integrity: No face
-                        violations or misbehavior events detected during interview.
-                      </div>
-                    )}
+                  <div style={{ marginTop: '20px' }}>
+                    <VideoProctorTimeline logs={selectedApplicant.interviewResult.integrity?.logs} />
                   </div>
                 </div>
               )}
@@ -643,6 +865,7 @@ export function EmployerDashboard() {
           </div>
         )}
       </div>
+
       <SiteFooter />
     </div>
   )

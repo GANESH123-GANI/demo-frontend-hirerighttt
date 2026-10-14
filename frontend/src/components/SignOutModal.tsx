@@ -83,8 +83,7 @@ export function SignOutModal() {
             <span className={styles.kicker}>SIGN OUT</span>
 
             <h2 id="signout-modal-title" className={styles.title}>
-              Leave <span className={styles.brandRed}>HIRERIGHT</span>
-              <sup className={styles.sup}>TT</sup>?
+              Sign Out?
             </h2>
 
             <p className={styles.metaText}>

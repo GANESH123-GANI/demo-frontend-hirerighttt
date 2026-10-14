@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 85" width="100%" height="100%" fill="none">
+  <!-- HIRE -->
+  <text x="8" y="52" font-family="Arial, 'Helvetica Neue', Helvetica, sans-serif" font-size="48" font-weight="900" fill="#FFFFFF" letter-spacing="-0.5">HIRE</text>
+  <!-- RIGHT -->
+  <text x="135" y="52" font-family="Arial, 'Helvetica Neue', Helvetica, sans-serif" font-size="48" font-weight="900" fill="#FF3333" letter-spacing="-0.5">RIGHT</text>
+  <!-- TTT -->
+  <text x="312" y="27" font-family="Arial, 'Helvetica Neue', Helvetica, sans-serif" font-size="22" font-weight="900" fill="#FF3333" letter-spacing="0">TTT</text>
+  <!-- TALENT TO TALENT (BOLD as requested) -->
+  <text x="150" y="73" text-anchor="middle" font-family="Arial, 'Helvetica Neue', Helvetica, sans-serif" font-size="14.5" font-weight="800" letter-spacing="3" fill="#FFFFFF">TALENT   TO   TALENT</text>
+</svg>

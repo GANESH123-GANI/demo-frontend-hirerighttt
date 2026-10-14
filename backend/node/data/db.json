@@ -62,6 +62,15 @@
       "passwordHash": "d5060722d52c7c11$447bdc538cb003d0501a994a073cff423948edcd499eaec0cbe20f4e3ce12347",
       "role": "jobseeker",
       "createdAt": "2026-10-12T12:39:08.370Z"
+    },
+    {
+      "id": "f3659c53924eb60f",
+      "name": "Sarah Jenkins",
+      "email": "vendor@hireright.com",
+      "passwordHash": "b30cfefd42957ab9$41aaab7aaf23bc45289ad287a01e2e98a126a487ead9a15585928cfa53d8631f",
+      "role": "employer",
+      "companyName": "TechCitta Solutions",
+      "createdAt": "2026-10-14T10:39:55.067Z"
     }
   ],
   "profiles": {
