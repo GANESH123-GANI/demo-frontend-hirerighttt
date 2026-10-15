@@ -75,6 +75,7 @@ export function ProfileWizard() {
       preferredRoles: saved.preferredRoles ?? initialFormData.preferredRoles,
       preferredLocations: saved.preferredLocations ?? initialFormData.preferredLocations,
       resumeText: saved.resumeText || '',
+      resumeName: saved.resumeName || null,
       resumeFile: null,
     }
   })

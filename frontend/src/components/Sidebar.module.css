@@ -1,17 +1,17 @@
-.sidebar { position:sticky; top:0; height:100vh; max-height:100vh; align-self:flex-start; flex:0 0 21.5%; width:21.5%; padding:26px 20px 20px; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; display:flex; flex-direction:column; color:#fff; background:#090e1c; border-right:1px solid rgba(255,255,255,0.08); z-index:20; }
+.sidebar { position:sticky; top:0; height:100vh; max-height:100vh; align-self:flex-start; flex:0 0 21.5%; width:21.5%; padding:26px 20px 20px; overflow-y:auto; overflow-x:hidden; scrollbar-width:none; display:flex; flex-direction:column; color:#fff; background:linear-gradient(155deg,#051129 0%,#0c1641 36%,#292f63 100%); z-index:20; }
 .sidebar::-webkit-scrollbar { display:none; }
 .brand { display:flex; flex-direction:column; text-decoration:none; color:#fff; margin-bottom:24px; z-index:1; }
 .logo { color:white; font-size:clamp(22px,2.4vw,30px); font-weight:700; line-height:1.1; letter-spacing:-.6px; white-space:nowrap; }
 .logo sup { font-size:.55em; color:#ff1629; position:relative; top:-.3em; letter-spacing:0; }
 .tagline { color:white; font-size:12px; font-weight:600; letter-spacing:.7px; margin-top:6px; }
 .tagline b,.hero em,.why sup { color:#ff172c; font-style:normal; }
-.hero { z-index:1; margin-bottom:16px; }
-.hero h2 { font-size:24px; line-height:1.32; color:white; font-weight:600; letter-spacing:-.3px; margin-bottom:10px; }
-.hero p { font-size:13.5px; line-height:1.6; color:rgba(240,239,255,0.85); }
-.wave { display:none; }
-.featureCard { position:relative; min-height:130px; border-radius:12px; padding:20px 18px; margin:0 0 24px; display:flex; flex-direction:column; justify-content:space-between; background:linear-gradient(145deg,rgba(255,255,255,0.06) 0%,rgba(255,255,255,0.02) 100%); border:1px solid rgba(255,255,255,0.1); box-shadow:0 4px 16px rgba(0,0,0,0.2); }
-.featureCard strong { font-size:15px; font-weight:600; line-height:1.55; color:#ffffff; }
-.featureCard small { margin-top:18px; font-size:12px; color:rgba(255,255,255,0.7); }
+.hero { z-index:1; margin-bottom:8px; }
+.hero h2 { font-size:26px; line-height:1.32; color:white; font-weight:600; letter-spacing:-.3px; margin-bottom:10px; }
+.hero p { font-size:14px; line-height:1.6; color:#f0efff; }
+.wave { position:relative; height:200px; margin:0 -20px; background-image:url('/assets/sidebar-wave.png'); background-size:cover; background-position:left center; background-repeat:no-repeat; }
+.featureCard { position:relative; min-height:162px; border-radius:12px; padding:22px 18px; margin:0 0 28px; display:flex; flex-direction:column; justify-content:space-between; background:linear-gradient(90deg,#071227d9,#0712270d),url('/assets/climber-card.jpg') center/cover; }
+.featureCard strong { font-size:16px; font-weight:600; line-height:1.7; }
+.featureCard small { margin-top:28px; font-size:12px; white-space:nowrap; }
 .why { border-top:1px solid rgba(255,255,255,0.08); padding-top:18px; margin-bottom:8px; }
 .why h3 { color:white; font-weight:700; font-size:19px; line-height:1.35; margin-bottom:14px; }
 .why sup { font-size:11px; }
@@ -22,7 +22,7 @@
 .help>span { font-size:18px; color:#a7acf0; line-height:1.2; }
 .help strong,.help a { display:block; font-size:11.5px; line-height:1.5; color:white; text-decoration:none; }
 .help strong { font-weight:500; }
-.later { background:#090e1c; padding-top:24px; }
+.later { background:linear-gradient(155deg,#08122e,#10194b 36%,#2b2871 65%,#102552); padding-top:24px; }
 .character { width:100%; height:130px; margin-bottom:16px; background:url('/assets/sidebar-character.png') left center / cover no-repeat; }
 .confirmCharacter { height:150px; background-image:url('/assets/sidebar-confirm.png'); background-size:cover; background-position:left center; background-repeat:no-repeat; }
 .later .hero h2 { font-size:20px; }

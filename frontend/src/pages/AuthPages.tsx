@@ -572,12 +572,17 @@ export function LoginPage({ initialMode }: { initialMode?: AuthMode } = {}) {
               </header>
 
               <form className={styles.loginForm} onSubmit={handleLoginSubmit}>
-                {successMessage && (
+                {successMessage ? (
                   <div className={styles.successBanner} role="status">
                     <span>✓</span>
                     <span>{successMessage}</span>
                   </div>
-                )}
+                ) : sessionStorage.getItem('hireright.intent') === 'upload_resume' ? (
+                  <div className={styles.successBanner} role="status">
+                    <span>📄</span>
+                    <span>Resume saved! Log in to automatically attach it to your profile.</span>
+                  </div>
+                ) : null}
 
                 {error && (
                   <div className={styles.errorBanner} role="alert">
@@ -743,6 +748,13 @@ export function LoginPage({ initialMode }: { initialMode?: AuthMode } = {}) {
                     <HrIcon name="building" size={18} /> Vendor / Recruiter
                   </button>
                 </div>
+
+                {sessionStorage.getItem('hireright.intent') === 'upload_resume' && (
+                  <div className={styles.successBanner} role="status" style={{ marginBottom: 16 }}>
+                    <span>📄</span>
+                    <span>Resume selected! Create your account to automatically analyze your profile.</span>
+                  </div>
+                )}
 
                 {error && (
                   <div className={styles.errorBanner} role="alert">

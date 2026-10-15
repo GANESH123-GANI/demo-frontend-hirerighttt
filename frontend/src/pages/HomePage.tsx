@@ -1,15 +1,30 @@
-import { useState } from 'react'
+import { useState, useRef, type ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getUser } from '../lib/store'
+import { setPendingResume } from '../lib/pendingResume'
 import styles from './HomePage.module.css'
 
 export function HomePage() {
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showSampleModal, setShowSampleModal] = useState(false)
+  const resumeFileInputRef = useRef<HTMLInputElement>(null)
 
   function handleResumeUploadClick() {
+    resumeFileInputRef.current?.click()
+  }
+
+  async function handleResumeFileSelected(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      await setPendingResume(file)
+    } catch (err) {
+      console.warn('Failed to save pending resume', err)
+    }
+
     sessionStorage.setItem('hireright.intent', 'upload_resume')
     const user = getUser()
     if (user) {
@@ -20,6 +35,11 @@ export function HomePage() {
       }
     } else {
       navigate('/signup')
+    }
+
+    // Reset input so re-selecting the same file triggers change
+    if (e.target) {
+      e.target.value = ''
     }
   }
 
@@ -34,6 +54,16 @@ export function HomePage() {
 
   return (
     <div className={styles.page}>
+      {/* Hidden file input triggered by "Upload Resume" capsule */}
+      <input
+        ref={resumeFileInputRef}
+        type="file"
+        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        style={{ display: 'none' }}
+        onChange={handleResumeFileSelected}
+        aria-hidden="true"
+      />
+
       {/* ====================================================================
           Section 1: Navigation Bar
           ==================================================================== */}
