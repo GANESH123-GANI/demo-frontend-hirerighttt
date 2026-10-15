@@ -218,6 +218,71 @@ export function EmployerDashboard() {
           </p>
         </motion.div>
 
+        {/* Private Job Openings Management Section (Image 1) */}
+        <motion.div
+          className={styles.jobsSection}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.03 }}
+        >
+          <div className={styles.jobsHeader}>
+            <h3 className={styles.jobsTitle}>
+              <HrIcon name="briefcase" size={20} /> Active Job Openings &amp; Shareable Assessment Links
+            </h3>
+            <button
+              type="button"
+              className={styles.createJobBtn}
+              onClick={() => setShowCreateJobModal(true)}
+            >
+              <HrIcon name="plus" size={14} /> Create New Job Opening
+            </button>
+          </div>
+
+          <div className={styles.jobsGrid}>
+            {jobs.map((job) => {
+              const count = applicants.filter((a) => a.jobId === job.id).length
+              const isCopied = copiedCode === job.shareableCode
+
+              return (
+                <div key={job.id} className={styles.jobCard}>
+                  <div>
+                    <h4 className={styles.jobCardTitle}>{job.title}</h4>
+                    <div className={styles.jobCardMeta}>
+                      <span className={styles.metaBadge}>{job.roleTrack}</span>
+                      <span className={styles.metaBadge}>{job.experienceLevel}</span>
+                      <span className={styles.metaBadge}>{job.location}</span>
+                    </div>
+
+                    <div className={styles.linkBox}>
+                      <span className={styles.linkUrl}>
+                        {`${window.location.origin}/apply/${job.shareableCode}`}
+                      </span>
+                      <button
+                        type="button"
+                        className={styles.copyBtn}
+                        onClick={() => handleCopyLink(job.shareableCode)}
+                      >
+                        {isCopied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.jobFooter}>
+                    <span>{count} Applicant(s)</span>
+                    <button
+                      type="button"
+                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
+                      onClick={() => handleDeleteJob(job.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </motion.div>
+
         {/* IN BETWEEN: All-Column Search & Filter Row */}
         <motion.div
           className={styles.filterBarCard}
@@ -473,66 +538,6 @@ export function EmployerDashboard() {
             </table>
           </div>
         </motion.div>
-
-        {/* Private Job Openings Management Section */}
-        <div className={styles.jobsSection}>
-          <div className={styles.jobsHeader}>
-            <h3 className={styles.jobsTitle}>
-              <HrIcon name="briefcase" size={20} /> Active Job Openings & Shareable Assessment Links
-            </h3>
-            <button
-              type="button"
-              className={styles.createJobBtn}
-              onClick={() => setShowCreateJobModal(true)}
-            >
-              <HrIcon name="plus" size={14} /> Create New Job Opening
-            </button>
-          </div>
-
-          <div className={styles.jobsGrid}>
-            {jobs.map((job) => {
-              const count = applicants.filter((a) => a.jobId === job.id).length
-              const isCopied = copiedCode === job.shareableCode
-
-              return (
-                <div key={job.id} className={styles.jobCard}>
-                  <div>
-                    <h4 className={styles.jobCardTitle}>{job.title}</h4>
-                    <div className={styles.jobCardMeta}>
-                      <span className={styles.metaBadge}>{job.roleTrack}</span>
-                      <span className={styles.metaBadge}>{job.experienceLevel}</span>
-                      <span className={styles.metaBadge}>{job.location}</span>
-                    </div>
-
-                    <div className={styles.linkBox}>
-                      <span className={styles.linkUrl}>
-                        {`${window.location.origin}/apply/${job.shareableCode}`}
-                      </span>
-                      <button
-                        type="button"
-                        className={styles.copyBtn}
-                        onClick={() => handleCopyLink(job.shareableCode)}
-                      >
-                        {isCopied ? 'Copied!' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className={styles.jobFooter}>
-                    <span>{count} Applicant(s)</span>
-                    <button
-                      type="button"
-                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
-                      onClick={() => handleDeleteJob(job.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
 
         {/* Add Candidate Modal */}
         {showAddModal && (
