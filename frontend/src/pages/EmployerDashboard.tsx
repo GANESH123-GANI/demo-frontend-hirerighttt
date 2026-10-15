@@ -15,6 +15,7 @@ import {
   type EmployerJob,
 } from '../lib/store'
 import { HrIcon } from '../components/HrIcon'
+import { SearchCandidatesPanel, type CandidateSearchQuery } from '../components/SearchCandidatesPanel'
 import styles from './EmployerDashboard.module.css'
 
 function getInitials(name: string): string {
@@ -60,6 +61,9 @@ export function EmployerDashboard() {
   const [newJobLocation, setNewJobLocation] = useState('Hyderabad / Remote')
   const [newJobDescription, setNewJobDescription] = useState('')
 
+  // Advanced Search Candidates Query (Image 2)
+  const [candidateSearchQuery, setCandidateSearchQuery] = useState<CandidateSearchQuery | null>(null)
+
   function handleClearFilters() {
     setSearchFilter('')
     setRoleFilter('')
@@ -68,10 +72,38 @@ export function EmployerDashboard() {
     setScoreFilter('')
     setIntegrityFilter('')
     setStatusFilter('')
+    setCandidateSearchQuery(null)
   }
 
   const filteredApplicants = useMemo(() => {
     return applicants.filter((app) => {
+      // Image 2 Search Candidates Panel filters
+      if (candidateSearchQuery) {
+        if (candidateSearchQuery.candidateName.trim()) {
+          const q = candidateSearchQuery.candidateName.trim().toLowerCase()
+          const match =
+            app.candidateName.toLowerCase().includes(q) ||
+            app.candidateEmail.toLowerCase().includes(q)
+          if (!match) return false
+        }
+
+        if (candidateSearchQuery.client.trim()) {
+          const q = candidateSearchQuery.client.trim().toLowerCase()
+          if (!app.company.toLowerCase().includes(q)) return false
+        }
+
+        const activeKeywords = candidateSearchQuery.keywords.filter((k) =>
+          candidateSearchQuery.allMandatory ? true : k.isMandatory,
+        )
+        if (activeKeywords.length > 0) {
+          const appText = `${app.role || ''} ${app.jobTitle} ${app.resumeName || ''}`.toLowerCase()
+          const hasKeyword = activeKeywords.some((k) =>
+            appText.includes(k.text.toLowerCase()),
+          )
+          if (!hasKeyword) return false
+        }
+      }
+
       // Search: name, email, or phone
       if (searchFilter.trim()) {
         const q = searchFilter.trim().toLowerCase()
@@ -124,7 +156,7 @@ export function EmployerDashboard() {
 
       return true
     })
-  }, [applicants, searchFilter, roleFilter, jobFilter, expFilter, scoreFilter, integrityFilter, statusFilter])
+  }, [applicants, candidateSearchQuery, searchFilter, roleFilter, jobFilter, expFilter, scoreFilter, integrityFilter, statusFilter])
 
   function handleStatusChange(id: string, newStatus: EmployerApplicant['status']) {
     updateEmployerApplicantStatus(id, newStatus)
@@ -282,6 +314,19 @@ export function EmployerDashboard() {
             })}
           </div>
         </motion.div>
+
+        {/* Search Candidates Component (Image 2) */}
+        <SearchCandidatesPanel
+          onSearch={(query) => {
+            setCandidateSearchQuery(query)
+            if (query.candidateName) {
+              setSearchFilter(query.candidateName)
+            }
+          }}
+          onClear={() => {
+            setCandidateSearchQuery(null)
+          }}
+        />
 
         {/* IN BETWEEN: All-Column Search & Filter Row */}
         <motion.div
