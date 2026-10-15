@@ -22,7 +22,7 @@ const LANDING_NAV = [
 ]
 
 const JOBSEEKER_NAV = [
-  { to: '/dashboard', label: 'My home' },
+  { to: '/dashboard', label: 'Dashboard' },
   { to: '/jobs', label: 'Jobs' },
   { to: '/applications', label: 'Applications' },
   { to: '/interview', label: 'Interview' },
@@ -30,7 +30,7 @@ const JOBSEEKER_NAV = [
 
 const EMPLOYER_NAV = [
   { to: '/employer/dashboard', label: 'Dashboard' },
-  { to: '/admin', label: 'Candidates' },
+  { to: '/employer/candidates', label: 'Candidates' },
 ]
 
 type SiteNavProps = {
@@ -131,12 +131,14 @@ export function SiteNav({ variant = 'default', suppressSignOut = false }: SiteNa
         <div className={styles.navActions}>
           {loggedIn && !showMarketingOnHome ? (
             <>
-              <Link
-                to={user?.role === 'employer' ? '/employer/dashboard' : '/dashboard'}
-                className={isLanding ? styles.landingSolid : styles.textBtn}
-              >
-                Dashboard
-              </Link>
+              {isLanding && (
+                <Link
+                  to={user?.role === 'employer' ? '/employer/dashboard' : '/dashboard'}
+                  className={styles.landingSolid}
+                >
+                  Dashboard
+                </Link>
+              )}
               {!hideSignOut && (
                 <button
                   type="button"

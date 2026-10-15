@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SiteNav } from '../components/SiteNav'
 import { SiteFooter } from '../components/SiteFooter'
@@ -24,7 +25,24 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-export function EmployerDashboard() {
+interface EmployerDashboardProps {
+  view?: 'dashboard' | 'candidates'
+}
+
+export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
+  const location = useLocation()
+  const isCandidatesView =
+    view === 'candidates' ||
+    location.pathname === '/employer/candidates' ||
+    location.pathname === '/candidates'
+
+  useEffect(() => {
+    if (location.hash === '#candidates' || location.hash === '#candidate-list') {
+      const el = document.getElementById('candidates-section')
+      el?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [location])
+
   const user = getUser()
   const [jobs, setJobs] = useState<EmployerJob[]>(() => getEmployerJobs(user?.email))
   const [applicants, setApplicants] = useState<EmployerApplicant[]>(() => getEmployerApplicants())
@@ -232,101 +250,105 @@ export function EmployerDashboard() {
       <SiteNav />
 
       <div className={styles.shell}>
-        {/* Top Hero Section */}
-        <motion.div
-          className={styles.heroCard}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <span className={styles.heroBadge}>
-            <HrIcon name="building" size={13} /> EMPLOYER & RECRUITER PORTAL ·{' '}
-            {user?.companyName || 'TECHCITTA SOLUTIONS'}
-          </span>
-          <h1 className={styles.heroTitle}>Employer AI Hiring Studio</h1>
-          <p className={styles.heroDesc}>
-            Create exclusive private job openings, generate unique assessment links, and
-            inspect candidates AI interview scores & video assessments.
-          </p>
-        </motion.div>
-
-        {/* Private Job Openings Management Section (Image 1) */}
-        <motion.div
-          className={styles.jobsSection}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.03 }}
-        >
-          <div className={styles.jobsHeader}>
-            <h3 className={styles.jobsTitle}>
-              <HrIcon name="briefcase" size={20} /> Active Job Openings &amp; Shareable Assessment Links
-            </h3>
-            <button
-              type="button"
-              className={styles.createJobBtn}
-              onClick={() => setShowCreateJobModal(true)}
+        {!isCandidatesView && (
+          <>
+            {/* Top Hero Section */}
+            <motion.div
+              className={styles.heroCard}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <HrIcon name="plus" size={14} /> Create New Job Opening
-            </button>
-          </div>
+              <span className={styles.heroBadge}>
+                <HrIcon name="building" size={13} /> EMPLOYER & RECRUITER PORTAL ·{' '}
+                {user?.companyName || 'TECHCITTA SOLUTIONS'}
+              </span>
+              <h1 className={styles.heroTitle}>Employer AI Hiring Studio</h1>
+              <p className={styles.heroDesc}>
+                Create exclusive private job openings, generate unique assessment links, and
+                inspect candidates AI interview scores & video assessments.
+              </p>
+            </motion.div>
 
-          <div className={styles.jobsGrid}>
-            {jobs.map((job) => {
-              const count = applicants.filter((a) => a.jobId === job.id).length
-              const isCopied = copiedCode === job.shareableCode
+            {/* Private Job Openings Management Section (Image 1) */}
+            <motion.div
+              className={styles.jobsSection}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.03 }}
+            >
+              <div className={styles.jobsHeader}>
+                <h3 className={styles.jobsTitle}>
+                  <HrIcon name="briefcase" size={20} /> Active Job Openings &amp; Shareable Assessment Links
+                </h3>
+                <button
+                  type="button"
+                  className={styles.createJobBtn}
+                  onClick={() => setShowCreateJobModal(true)}
+                >
+                  <HrIcon name="plus" size={14} /> Create New Job Opening
+                </button>
+              </div>
 
-              return (
-                <div key={job.id} className={styles.jobCard}>
-                  <div>
-                    <h4 className={styles.jobCardTitle}>{job.title}</h4>
-                    <div className={styles.jobCardMeta}>
-                      <span className={styles.metaBadge}>{job.roleTrack}</span>
-                      <span className={styles.metaBadge}>{job.experienceLevel}</span>
-                      <span className={styles.metaBadge}>{job.location}</span>
+              <div className={styles.jobsGrid}>
+                {jobs.map((job) => {
+                  const count = applicants.filter((a) => a.jobId === job.id).length
+                  const isCopied = copiedCode === job.shareableCode
+
+                  return (
+                    <div key={job.id} className={styles.jobCard}>
+                      <div>
+                        <h4 className={styles.jobCardTitle}>{job.title}</h4>
+                        <div className={styles.jobCardMeta}>
+                          <span className={styles.metaBadge}>{job.roleTrack}</span>
+                          <span className={styles.metaBadge}>{job.experienceLevel}</span>
+                          <span className={styles.metaBadge}>{job.location}</span>
+                        </div>
+
+                        <div className={styles.linkBox}>
+                          <span className={styles.linkUrl}>
+                            {`${window.location.origin}/apply/${job.shareableCode}`}
+                          </span>
+                          <button
+                            type="button"
+                            className={styles.copyBtn}
+                            onClick={() => handleCopyLink(job.shareableCode)}
+                          >
+                            {isCopied ? 'Copied!' : 'Copy'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className={styles.jobFooter}>
+                        <span>{count} Applicant(s)</span>
+                        <button
+                          type="button"
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
+                          onClick={() => handleDeleteJob(job.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+                  )
+                })}
+              </div>
+            </motion.div>
 
-                    <div className={styles.linkBox}>
-                      <span className={styles.linkUrl}>
-                        {`${window.location.origin}/apply/${job.shareableCode}`}
-                      </span>
-                      <button
-                        type="button"
-                        className={styles.copyBtn}
-                        onClick={() => handleCopyLink(job.shareableCode)}
-                      >
-                        {isCopied ? 'Copied!' : 'Copy'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className={styles.jobFooter}>
-                    <span>{count} Applicant(s)</span>
-                    <button
-                      type="button"
-                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.8rem' }}
-                      onClick={() => handleDeleteJob(job.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </motion.div>
-
-        {/* Search Candidates Component (Image 2) */}
-        <SearchCandidatesPanel
-          onSearch={(query) => {
-            setCandidateSearchQuery(query)
-            if (query.candidateName) {
-              setSearchFilter(query.candidateName)
-            }
-          }}
-          onClear={() => {
-            setCandidateSearchQuery(null)
-          }}
-        />
+            {/* Search Candidates Component (Image 2) */}
+            <SearchCandidatesPanel
+              onSearch={(query) => {
+                setCandidateSearchQuery(query)
+                if (query.candidateName) {
+                  setSearchFilter(query.candidateName)
+                }
+              }}
+              onClear={() => {
+                setCandidateSearchQuery(null)
+              }}
+            />
+          </>
+        )}
 
         {/* IN BETWEEN: All-Column Search & Filter Row */}
         <motion.div
@@ -416,8 +438,9 @@ export function EmployerDashboard() {
           )}
         </motion.div>
 
-        {/* Candidates Section Card */}
+        {/* Candidates Section Card (Image 2) */}
         <motion.div
+          id="candidates-section"
           className={styles.candidatesCard}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

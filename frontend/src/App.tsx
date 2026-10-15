@@ -91,6 +91,22 @@ function AnimatedRoutes() {
             }
           />
           <Route
+            path="/employer/candidates"
+            element={
+              <RequireAuth role="employer">
+                <EmployerDashboard view="candidates" />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/candidates"
+            element={
+              <RequireAuth role="employer">
+                <EmployerDashboard view="candidates" />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/employer"
             element={
               <RequireAuth role="employer">
