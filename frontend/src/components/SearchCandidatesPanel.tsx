@@ -23,19 +23,6 @@ interface SearchCandidatesPanelProps {
   onClear?: () => void
 }
 
-const DEFAULT_KEYWORDS: KeywordItem[] = [
-  { id: '1', text: 'Program Manager', isMandatory: true },
-  { id: '2', text: 'Technical Program Manager', isMandatory: false },
-  { id: '3', text: 'IT Program Manager', isMandatory: false },
-  { id: '4', text: 'TPM', isMandatory: false },
-  { id: '5', text: 'Agile', isMandatory: false },
-  { id: '6', text: 'Scrum', isMandatory: false },
-  { id: '7', text: 'JIRA', isMandatory: false },
-  { id: '8', text: 'Confluence', isMandatory: true },
-  { id: '9', text: 'AWS', isMandatory: false },
-  { id: '10', text: 'Technical Project Manager', isMandatory: false },
-]
-
 export function SearchCandidatesPanel({
   onSearch,
   onClear,
@@ -43,7 +30,7 @@ export function SearchCandidatesPanel({
   const [client, setClient] = useState('')
   const [candidateName, setCandidateName] = useState('')
   const [booleanMode, setBooleanMode] = useState(false)
-  const [keywords, setKeywords] = useState<KeywordItem[]>(DEFAULT_KEYWORDS)
+  const [keywords, setKeywords] = useState<KeywordItem[]>([])
   const [allMandatory, setAllMandatory] = useState(false)
   const [searchScope, setSearchScope] = useState('Entire resume')
   const [inputVal, setInputVal] = useState('')
@@ -192,40 +179,48 @@ export function SearchCandidatesPanel({
         </div>
 
         <div className={styles.keywordsContainer}>
-          <div className={styles.tagsArea}>
-            {keywords.map((k) => (
-              <span
-                key={k.id}
-                className={`${styles.keywordPill} ${k.isMandatory || allMandatory ? styles.keywordPillStarred : ''}`}
-              >
-                <button
-                  type="button"
-                  className={`${styles.starBtn} ${k.isMandatory || allMandatory ? styles.starBtnStarred : ''}`}
-                  onClick={() => handleToggleStar(k.id)}
-                  title={k.isMandatory ? 'Marked as must-have' : 'Mark as must-have'}
-                  aria-label="Toggle must-have star"
+          {keywords.length > 0 && (
+            <div className={styles.tagsArea}>
+              {keywords.map((k) => (
+                <span
+                  key={k.id}
+                  className={`${styles.keywordPill} ${k.isMandatory || allMandatory ? styles.keywordPillStarred : ''}`}
                 >
-                  {k.isMandatory || allMandatory ? '★' : '☆'}
-                </button>
-                <span>{k.text}</span>
-                <button
-                  type="button"
-                  className={styles.removeTagBtn}
-                  onClick={() => handleRemoveKeyword(k.id)}
-                  title="Remove keyword"
-                  aria-label={`Remove ${k.text}`}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
+                  <button
+                    type="button"
+                    className={`${styles.starBtn} ${k.isMandatory || allMandatory ? styles.starBtnStarred : ''}`}
+                    onClick={() => handleToggleStar(k.id)}
+                    title={k.isMandatory ? 'Marked as must-have' : 'Mark as must-have'}
+                    aria-label="Toggle must-have star"
+                  >
+                    {k.isMandatory || allMandatory ? '★' : '☆'}
+                  </button>
+                  <span>{k.text}</span>
+                  <button
+                    type="button"
+                    className={styles.removeTagBtn}
+                    onClick={() => handleRemoveKeyword(k.id)}
+                    title="Remove keyword"
+                    aria-label={`Remove ${k.text}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
 
-          <div className={styles.keywordInputRow}>
+          <div
+            className={`${styles.keywordInputRow} ${keywords.length === 0 ? styles.keywordInputRowEmpty : ''}`}
+          >
             <input
               type="text"
               className={styles.addKeywordInput}
-              placeholder="Type another keyword and press Enter"
+              placeholder={
+                keywords.length === 0
+                  ? 'Type a keyword and press Enter (e.g. React, Product Manager)'
+                  : 'Type another keyword and press Enter'
+              }
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}

@@ -266,6 +266,11 @@
   padding-top: 12px;
 }
 
+.keywordInputRowEmpty {
+  border-top: none;
+  padding-top: 0;
+}
+
 .addKeywordInput {
   flex: 1;
   border: none;
