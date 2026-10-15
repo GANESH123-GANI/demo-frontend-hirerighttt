@@ -12,7 +12,6 @@ export interface KeywordItem {
 export interface CandidateSearchQuery {
   client: string
   candidateName: string
-  booleanMode: boolean
   keywords: KeywordItem[]
   allMandatory: boolean
   searchScope: string
@@ -29,7 +28,6 @@ export function SearchCandidatesPanel({
 }: SearchCandidatesPanelProps) {
   const [client, setClient] = useState('')
   const [candidateName, setCandidateName] = useState('')
-  const [booleanMode, setBooleanMode] = useState(false)
   const [keywords, setKeywords] = useState<KeywordItem[]>([])
   const [allMandatory, setAllMandatory] = useState(false)
   const [searchScope, setSearchScope] = useState('Entire resume')
@@ -84,7 +82,6 @@ export function SearchCandidatesPanel({
     onSearch?.({
       client,
       candidateName,
-      booleanMode,
       keywords,
       allMandatory,
       searchScope,
@@ -161,21 +158,6 @@ export function SearchCandidatesPanel({
       <div className={styles.keywordsSection}>
         <div className={styles.keywordsHeader}>
           <h3 className={styles.keywordsTitle}>Keywords</h3>
-          <div
-            className={styles.booleanToggle}
-            onClick={() => setBooleanMode((prev) => !prev)}
-            role="button"
-            tabIndex={0}
-          >
-            <div
-              className={`${styles.switchTrack} ${booleanMode ? styles.switchTrackActive : ''}`}
-            >
-              <div
-                className={`${styles.switchThumb} ${booleanMode ? styles.switchThumbActive : ''}`}
-              />
-            </div>
-            <span>Boolean {booleanMode ? 'on' : 'off'}</span>
-          </div>
         </div>
 
         <div className={styles.keywordsContainer}>
