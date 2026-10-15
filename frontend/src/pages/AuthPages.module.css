@@ -12,8 +12,8 @@
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 45% at 8% 15%, rgba(229, 57, 53, 0.05), transparent 55%),
-    radial-gradient(ellipse 55% 40% at 92% 85%, rgba(7, 18, 42, 0.04), transparent 50%);
+    radial-gradient(ellipse 70% 45% at 8% 15%, rgba(79, 70, 229, 0.05), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 92% 85%, rgba(15, 23, 42, 0.04), transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -89,7 +89,7 @@
 }
 
 .asideAccent {
-  color: var(--hr-red, #e53935);
+  color: #4f46e5;
 }
 
 .loginAside {
@@ -152,11 +152,11 @@
   width: 2rem;
   height: 2rem;
   border-radius: 999px;
-  background: #fff;
-  border: 1px solid var(--hr-border, #e2e8f0);
-  color: var(--hr-red, #e53935);
-  font-size: 0.65rem;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  background: #eef2ff;
+  border: 1px solid #dcd7fe;
+  color: #4f46e5;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
 }
 
 .asideSocial {
@@ -217,14 +217,14 @@
 
 .kicker {
   display: inline-block;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(225, 29, 72, 0.08);
-  border: 1px solid rgba(225, 29, 72, 0.2);
-  color: var(--hr-red, #e53935);
+  background: #eef2ff;
+  border: 1px solid #dcd7fe;
+  color: #4f46e5;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
 }
 
 .card h1 {
@@ -241,7 +241,7 @@
   font-family: inherit;
   font-style: normal;
   font-weight: 800;
-  color: var(--hr-red, #e53935);
+  color: #4f46e5;
 }
 
 .card > p {
@@ -369,14 +369,15 @@
 }
 
 .submit {
-  background: var(--hr-red, #e53935);
+  background: #4f46e5;
   color: #fff;
   border: none;
-  box-shadow: 0 6px 20px -2px rgba(229, 57, 53, 0.42);
+  box-shadow: 0 6px 20px -2px rgba(79, 70, 229, 0.4);
 }
 
 .submit:hover {
-  background: var(--hr-red-hover, #d32f2f);
+  background: #4338ca;
+  box-shadow: 0 8px 24px -2px rgba(79, 70, 229, 0.5);
 }
 
 .ghost {
@@ -391,14 +392,14 @@
 }
 
 .demoBtn {
-  background: rgba(225, 29, 72, 0.06);
-  border: 1px dashed rgba(225, 29, 72, 0.35);
-  color: var(--hr-red, #e53935);
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px dashed rgba(79, 70, 229, 0.35);
+  color: #4f46e5;
 }
 
 .demoBtn:hover {
-  background: rgba(225, 29, 72, 0.1);
-  border-color: var(--hr-red, #e11d48);
+  background: rgba(79, 70, 229, 0.12);
+  border-color: #4f46e5;
 }
 
 .demoSection {
@@ -437,9 +438,9 @@
 }
 
 .demoCard:hover:not(:disabled) {
-  border-color: var(--hr-red, #e11d48);
+  border-color: #4f46e5;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.12);
 }
 
 .demoCard:disabled {
@@ -484,14 +485,14 @@
   padding: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--hr-red, #e53935);
+  color: #4f46e5;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .demoLinkBtn:hover {
-  color: var(--hr-red-hover, #be123c);
+  color: #4338ca;
 }
 
 .footer {
@@ -502,7 +503,7 @@
 }
 
 .footer a {
-  color: var(--hr-red, #e53935);
+  color: #4f46e5;
   font-weight: 600;
   text-decoration: none;
 }
@@ -533,8 +534,9 @@
 }
 
 .settingsList > button:not(.submit):not(.ghost):hover {
-  border-color: var(--hr-red, #e11d48);
-  color: var(--hr-red, #e53935);
+  border-color: #4f46e5;
+  color: #4f46e5;
+  background: #f5f3ff;
 }
 
 .settingsCard {
@@ -558,7 +560,7 @@
   width: 18px;
   height: 18px;
   margin-top: 2px;
-  accent-color: var(--hr-red, #e11d48);
+  accent-color: #4f46e5;
 }
 
 .success {
