@@ -499,44 +499,39 @@
 
 .centerSearchBtnRow {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-  margin: 24px 0 16px 0;
+  margin: 18px 0 10px 0;
 }
 
 .centerSearchBtn {
-  background: #ffffff;
-  color: #4f46e5;
-  border: 1px solid #c7d2fe;
-  border-radius: 8px;
-  padding: 9px 22px;
-  font-size: 0.95rem;
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.08);
-  transition: all 0.2s ease;
+  gap: 6px;
+  transition: all 0.15s ease;
 }
 
 .centerSearchBtn:hover {
-  background: #f5f3ff;
-  border-color: #818cf8;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.15);
-  transform: translateY(-1px);
+  background: #e2e8f0;
+  border-color: #94a3b8;
 }
 
 .centerSearchBtnActive {
-  background: #4f46e5;
-  color: #ffffff;
+  background: #e2e8f0;
+  color: #4f46e5;
   border-color: #4f46e5;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
 }
 
 .centerSearchBtnActive:hover {
-  background: #4338ca;
-  border-color: #4338ca;
+  background: #cbd5e1;
 }
 
 .createJobBtn {

@@ -344,7 +344,7 @@ export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
                 onClick={() => setShowSearchPanel((prev) => !prev)}
                 title={showSearchPanel ? 'Hide search candidates panel' : 'Open search candidates panel'}
               >
-                <HrIcon name="search" size={16} /> Search candidates
+                <HrIcon name="search" size={14} /> Search candidates
               </button>
             </div>
 
@@ -375,7 +375,7 @@ export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
               onClick={() => setShowSearchPanel((prev) => !prev)}
               title={showSearchPanel ? 'Hide search candidates panel' : 'Open search candidates panel'}
             >
-              <HrIcon name="search" size={16} /> Search candidates
+              <HrIcon name="search" size={14} /> Search candidates
             </button>
           </div>
         )}
