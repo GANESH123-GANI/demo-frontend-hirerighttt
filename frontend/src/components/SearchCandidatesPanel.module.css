@@ -13,6 +13,13 @@
   width: 100%;
 }
 
+.topHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
 .headerTitle {
   font-size: 1.65rem;
   font-weight: 800;
@@ -24,8 +31,31 @@
 .headerSubtitle {
   font-size: 0.95rem;
   color: #64748b;
-  margin: 6px 0 24px 0;
+  margin: 6px 0 0 0;
   line-height: 1.5;
+}
+
+.closePanelBtn {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 1.3rem;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.closePanelBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }
 
 /* Two-column top inputs */

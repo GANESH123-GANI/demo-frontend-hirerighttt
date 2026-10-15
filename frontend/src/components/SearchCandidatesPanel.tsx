@@ -20,11 +20,13 @@ export interface CandidateSearchQuery {
 interface SearchCandidatesPanelProps {
   onSearch?: (query: CandidateSearchQuery) => void
   onClear?: () => void
+  onClose?: () => void
 }
 
 export function SearchCandidatesPanel({
   onSearch,
   onClear,
+  onClose,
 }: SearchCandidatesPanelProps) {
   const [client, setClient] = useState('')
   const [candidateName, setCandidateName] = useState('')
@@ -99,10 +101,25 @@ export function SearchCandidatesPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.05 }}
     >
-      <h2 className={styles.headerTitle}>Search candidates</h2>
-      <p className={styles.headerSubtitle}>
-        Add the role titles and skills you need. Star the ones that are must-haves.
-      </p>
+      <div className={styles.topHeaderRow}>
+        <div>
+          <h2 className={styles.headerTitle}>Search candidates</h2>
+          <p className={styles.headerSubtitle}>
+            Add the role titles and skills you need. Star the ones that are must-haves.
+          </p>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            className={styles.closePanelBtn}
+            onClick={onClose}
+            title="Close search candidates panel"
+            aria-label="Close search candidates panel"
+          >
+            ×
+          </button>
+        )}
+      </div>
 
       {/* Top 2 Inputs Grid */}
       <div className={styles.topInputsGrid}>
