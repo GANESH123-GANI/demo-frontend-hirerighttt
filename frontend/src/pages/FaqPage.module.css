@@ -54,9 +54,9 @@
 
 .navInner {
   width: 100%;
-  max-width: 1536px;
-  margin: 0 auto;
-  padding: 0 clamp(1.5rem, 3vw, 3rem);
+  max-width: 100%;
+  margin: 0;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
