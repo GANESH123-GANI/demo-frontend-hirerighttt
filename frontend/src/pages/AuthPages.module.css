@@ -631,7 +631,8 @@
 
 .splitLeft {
   position: relative;
-  background: linear-gradient(168deg, #251e6d 0%, #1f185a 50%, #181248 100%);
+  background: #090e1c;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   color: #ffffff;
   min-height: 100vh;
   display: flex;
