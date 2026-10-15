@@ -59,7 +59,7 @@ export function FaqPage() {
           Navigation Bar
           ==================================================================== */}
       <header className={styles.navbar}>
-        <div className={`${styles.shell} ${styles.navInner}`}>
+        <div className={styles.navInner}>
           <Link to="/" className={styles.brandWrap} aria-label="HireRighttt Home">
             <img
               src="/logos/hirerighttt-logo.svg"
