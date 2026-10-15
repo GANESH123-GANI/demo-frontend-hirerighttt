@@ -71,6 +71,14 @@
       "role": "employer",
       "companyName": "TechCitta Solutions",
       "createdAt": "2026-10-14T10:39:55.067Z"
+    },
+    {
+      "id": "77365dee95e6cb33",
+      "name": "kalyan",
+      "email": "kalyan123@gmail.com",
+      "passwordHash": "fc696d1f2ee224c1$28bfbdddc0cec2bd723219674898b454318f239ed448ac95ca7ef856a2c422d9",
+      "role": "jobseeker",
+      "createdAt": "2026-10-15T09:59:04.319Z"
     }
   ],
   "profiles": {
