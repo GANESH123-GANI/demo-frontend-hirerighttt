@@ -282,23 +282,13 @@ export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
                 <h3 className={styles.jobsTitle}>
                   <HrIcon name="briefcase" size={20} /> Active Job Openings &amp; Shareable Assessment Links
                 </h3>
-                <div className={styles.jobsHeaderActions}>
-                  <button
-                    type="button"
-                    className={`${styles.searchToggleBtn} ${showSearchPanel ? styles.searchToggleBtnActive : ''}`}
-                    onClick={() => setShowSearchPanel((prev) => !prev)}
-                    title={showSearchPanel ? 'Hide search candidates panel' : 'Open search candidates panel'}
-                  >
-                    <HrIcon name="search" size={14} /> Search candidates
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.createJobBtn}
-                    onClick={() => setShowCreateJobModal(true)}
-                  >
-                    <HrIcon name="plus" size={14} /> Create New Job Opening
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className={styles.createJobBtn}
+                  onClick={() => setShowCreateJobModal(true)}
+                >
+                  <HrIcon name="plus" size={14} /> Create New Job Opening
+                </button>
               </div>
 
               <div className={styles.jobsGrid}>
@@ -346,6 +336,18 @@ export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
               </div>
             </motion.div>
 
+            {/* Center "Search candidates" Button between Image 2 */}
+            <div className={styles.centerSearchBtnRow}>
+              <button
+                type="button"
+                className={`${styles.centerSearchBtn} ${showSearchPanel ? styles.centerSearchBtnActive : ''}`}
+                onClick={() => setShowSearchPanel((prev) => !prev)}
+                title={showSearchPanel ? 'Hide search candidates panel' : 'Open search candidates panel'}
+              >
+                <HrIcon name="search" size={16} /> Search candidates
+              </button>
+            </div>
+
             {/* Search Candidates Component (Image 3) */}
             {showSearchPanel && (
               <SearchCandidatesPanel
@@ -363,6 +365,19 @@ export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
               />
             )}
           </>
+        )}
+
+        {isCandidatesView && (
+          <div className={styles.centerSearchBtnRow}>
+            <button
+              type="button"
+              className={`${styles.centerSearchBtn} ${showSearchPanel ? styles.centerSearchBtnActive : ''}`}
+              onClick={() => setShowSearchPanel((prev) => !prev)}
+              title={showSearchPanel ? 'Hide search candidates panel' : 'Open search candidates panel'}
+            >
+              <HrIcon name="search" size={16} /> Search candidates
+            </button>
+          </div>
         )}
 
         {isCandidatesView && showSearchPanel && (
@@ -486,14 +501,6 @@ export function EmployerDashboard({ view }: EmployerDashboardProps = {}) {
             </div>
 
             <div className={styles.headerActions}>
-              <button
-                type="button"
-                className={`${styles.searchToggleBtn} ${showSearchPanel ? styles.searchToggleBtnActive : ''}`}
-                onClick={() => setShowSearchPanel((prev) => !prev)}
-                title={showSearchPanel ? 'Hide search candidates panel' : 'Open search candidates panel'}
-              >
-                <HrIcon name="search" size={14} /> Search candidates
-              </button>
               <button
                 type="button"
                 className={styles.clearFiltersBtn}
