@@ -492,34 +492,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ====================================================================
-          Section 6: Final CTA Banner
-          ==================================================================== */}
-      <section className={styles.ctaSection}>
-        <div className={styles.shell}>
-          <motion.div
-            className={styles.ctaCard}
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className={styles.ctaHeading}>
-              Your Next Opportunity Starts with One Conversation.
-            </h2>
-            <p className={styles.ctaParagraph}>
-              Give yourself 15 minutes to understand your strengths, discover what to work on, and
-              build a clearer path toward the career you want.
-            </p>
-            <Link to="/signup" className={styles.ctaBtn}>
-              START MY CAREER DISCOVERY
-            </Link>
-            <p className={styles.ctaFootnote}>
-              No resume required to get started • Personalized AI-powered guidance
-            </p>
-          </motion.div>
-        </div>
-      </section>
 
       {/* ====================================================================
           Section 7: Footer
