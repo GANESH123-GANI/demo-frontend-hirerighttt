@@ -105,9 +105,9 @@
   align-items: center;
   padding: 0.35rem 0;
   text-decoration: none;
-  font-size: 0.78125rem;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #000000;
   transition: color 0.18s ease;
@@ -156,9 +156,9 @@
   align-items: center;
   padding: 0.35rem 0;
   text-decoration: none;
-  font-size: 0.78125rem;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #000000;
   transition: color 0.18s ease;
@@ -195,11 +195,11 @@
   background: var(--primary-purple);
   color: #ffffff !important;
   text-decoration: none;
-  font-size: 0.75rem;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0.7rem 1.35rem;
+  padding: 0.65rem 1.5rem;
   border-radius: 9999px;
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
