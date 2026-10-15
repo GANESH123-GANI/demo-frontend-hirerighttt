@@ -52,7 +52,7 @@ export function HowItWorksPage() {
         <div className={`${styles.shell} ${styles.navInner}`}>
           <Link to="/" className={styles.brandWrap} aria-label="HireRighttt Home">
             <img
-              src="/logos/hirerighttt-logo.png"
+              src="/logos/hirerighttt-logo.svg"
               alt="HireRighttt — Talent to Talent"
               className={styles.brandLogoImg}
             />
@@ -295,7 +295,7 @@ export function HowItWorksPage() {
             <div className={styles.footerBrandColumn}>
               <Link to="/" className={styles.footerBrandWrap}>
                 <img
-                  src="/logos/hirerighttt-logo-dark.png"
+                  src="/logos/hirerighttt-logo-dark.svg"
                   alt="HireRighttt — Talent to Talent"
                   className={styles.footerLogoImg}
                 />

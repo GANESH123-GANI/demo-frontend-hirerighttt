@@ -502,7 +502,7 @@ export function LoginPage({ initialMode }: { initialMode?: AuthMode } = {}) {
         <div className={styles.splitLeftInner}>
           <Link to="/" className={styles.brandLink} title="Back to HireRighttt Home">
             <img
-              src="/logos/hirerighttt-logo-dark.png"
+              src="/logos/hirerighttt-logo-dark.svg"
               alt="HireRighttt — Talent to Talent"
               className={styles.brandLogoImg}
             />

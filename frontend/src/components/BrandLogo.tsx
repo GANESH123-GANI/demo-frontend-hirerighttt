@@ -24,8 +24,8 @@ export function BrandLogo({
   imgStyle,
 }: BrandLogoProps) {
   const imgSrc = dark
-    ? '/logos/hirerighttt-logo-dark.png'
-    : '/logos/hirerighttt-logo-transparent.png'
+    ? '/logos/hirerighttt-logo-dark.svg'
+    : '/logos/hirerighttt-logo.svg'
 
   const imgElement = (
     <img
