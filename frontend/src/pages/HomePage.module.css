@@ -107,7 +107,7 @@
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 2.25rem;
+  gap: 3.375rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1008,6 +1008,12 @@
 /* ==========================================================================
    Responsive Breakpoints
    ========================================================================== */
+
+@media (max-width: 1200px) {
+  .navLinks {
+    gap: 2rem;
+  }
+}
 
 @media (max-width: 1024px) {
   .exploreGrid {
