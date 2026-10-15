@@ -243,13 +243,28 @@ export function LoginPage({ initialMode }: { initialMode?: AuthMode } = {}) {
   const [loginPassword, setLoginPassword] = useState('')
 
   // Signup state
-  const [signupRole, setSignupRole] = useState<RoleType>('jobseeker')
+  const searchRole = new URLSearchParams(location.search).get('role')
+  const initialRole: RoleType =
+    searchRole === 'employer' || searchRole === 'recruiter' || searchRole === 'vendor'
+      ? 'employer'
+      : 'jobseeker'
+  const [signupRole, setSignupRole] = useState<RoleType>(initialRole)
   const [signupName, setSignupName] = useState('')
   const [signupPhone, setSignupPhone] = useState('')
   const [signupCompanyName, setSignupCompanyName] = useState('')
   const [signupEmail, setSignupEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
   const [termsAgreed, setTermsAgreed] = useState(true)
+
+  // Sync signup role if query parameters change
+  useEffect(() => {
+    const role = new URLSearchParams(location.search).get('role')
+    if (role === 'employer' || role === 'recruiter' || role === 'vendor') {
+      setSignupRole('employer')
+    } else if (role === 'jobseeker' || role === 'candidate') {
+      setSignupRole('jobseeker')
+    }
+  }, [location.search])
 
   function switchMode(newMode: AuthMode) {
     setAuthMode(newMode)

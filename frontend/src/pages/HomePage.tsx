@@ -257,14 +257,29 @@ export function HomePage() {
               <div className={styles.capsuleDivider} />
 
               {/* Right Side: Recruiter CTA */}
-              <div className={styles.capsuleRecruiterSide}>
+              <div
+                className={styles.capsuleRecruiterSide}
+                onClick={handleRecruiterClick}
+                role="button"
+                tabIndex={0}
+                aria-label="For recruiters"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleRecruiterClick()
+                  }
+                }}
+              >
                 <span className={styles.recruiterText}>
                   Hiring? Meet talent that’s ready.
                 </span>
                 <button
                   type="button"
                   className={styles.capsuleRecruiterBtn}
-                  onClick={handleRecruiterClick}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleRecruiterClick()
+                  }}
                 >
                   For Recruiters
                 </button>
